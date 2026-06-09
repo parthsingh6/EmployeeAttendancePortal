@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
     String name = "parth";
 
     return MaterialApp(
+        debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.light,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
