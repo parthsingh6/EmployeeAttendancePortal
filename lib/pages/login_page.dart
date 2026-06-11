@@ -55,45 +55,36 @@ class _LoginPageState extends State<LoginPage> {
               Image.asset("assets/images/login_image.png", fit: BoxFit.cover),
               SizedBox(height: 20),
 
-
               CircleAvatar(
-  radius: 40,
-  backgroundColor: Colors.deepPurple,
-  child: Icon(
-    Icons.badge,
-    color: Colors.white,
-    size: 40,
-  ),
-),
+                radius: 40,
+                backgroundColor: Colors.deepPurple,
+                child: Icon(Icons.badge, color: Colors.white, size: 40),
+              ),
 
-SizedBox(height: 15),
+              SizedBox(height: 15),
 
               Text(
                 "Employee Attendance Portal",
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold,
-                color: Colors.deepPurple,
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.deepPurple,
+                ),
               ),
-               ),
 
               SizedBox(height: 8),
 
-Text(
-  "Welcome Back",
-  style: TextStyle(
-    fontSize: 18,
-    color: Colors.grey,
-  ),
-),
+              Text(
+                "Welcome Back",
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
 
-SizedBox(height: 5),
+              SizedBox(height: 5),
 
-Text(
-  "Manage Your Attendance Efficiently",
-  style: TextStyle(
-    fontSize: 14,
-    color: Colors.grey,
-  ),
-),
+              Text(
+                "Manage Your Attendance Efficiently",
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
 
               Padding(
                 padding: const EdgeInsets.symmetric(
@@ -104,13 +95,13 @@ Text(
                   children: [
                     TextFormField(
                       decoration: InputDecoration(
-  prefixIcon: Icon(Icons.person),
-  hintText: "Enter Name",
-  labelText: "Employee Name",
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-),
+                        prefixIcon: Icon(Icons.person),
+                        hintText: "Enter Name",
+                        labelText: "Employee Name",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Name cannot be empty";
@@ -126,13 +117,13 @@ Text(
                     TextFormField(
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-  prefixIcon: Icon(Icons.business),
-  hintText: "Enter Department",
-  labelText: "Department",
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-),
+                        prefixIcon: Icon(Icons.business),
+                        hintText: "Enter Department",
+                        labelText: "Department",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Class cannot be empty";
@@ -148,13 +139,13 @@ Text(
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
-  prefixIcon: Icon(Icons.badge),
-  hintText: "Enter Employee ID",
-  labelText: "Employee ID",
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-),
+                        prefixIcon: Icon(Icons.badge),
+                        hintText: "Enter Employee ID",
+                        labelText: "Employee ID",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Roll Number cannot be empty";
@@ -168,13 +159,13 @@ Text(
 
                     TextFormField(
                       decoration: InputDecoration(
-  prefixIcon: Icon(Icons.email),
-  hintText: "Enter Email",
-  labelText: "Email",
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-),
+                        prefixIcon: Icon(Icons.email),
+                        hintText: "Enter Email",
+                        labelText: "Email",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Email cannot be empty";
@@ -192,13 +183,13 @@ Text(
                       keyboardType: TextInputType.phone,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
-  prefixIcon: Icon(Icons.phone),
-  hintText: "Enter Contact Number",
-  labelText: "Contact Number",
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-  ),
-),
+                        prefixIcon: Icon(Icons.phone),
+                        hintText: "Enter Contact Number",
+                        labelText: "Contact Number",
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                      ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return "Contact Number cannot be empty";
@@ -260,3 +251,4 @@ Text(
     );
   }
 }
+// Day9 update
