@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_new_app/pages/employee_details.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:my_new_app/pages/dashboard_page.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -34,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => const StudentDetails()),
+        MaterialPageRoute(builder: (context) => const DashboardPage()),
       );
 
       setState(() {
@@ -52,16 +53,14 @@ class _LoginPageState extends State<LoginPage> {
           key: _formKey,
           child: Column(
             children: [
-              Image.asset("assets/images/login_image.png", fit: BoxFit.cover),
-              SizedBox(height: 20),
-
-              CircleAvatar(
-                radius: 40,
-                backgroundColor: Colors.deepPurple,
-                child: Icon(Icons.badge, color: Colors.white, size: 40),
+              SizedBox(
+                height: 120,
+                child: Image.asset(
+                  "assets/images/login_image.png",
+                  fit: BoxFit.contain,
+                ),
               ),
-
-              SizedBox(height: 15),
+              SizedBox(height: 20),
 
               Text(
                 "Employee Attendance Portal",
@@ -72,176 +71,193 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              SizedBox(height: 8),
+              SizedBox(height: 15),
 
               Text(
-                "Welcome Back",
-                style: TextStyle(fontSize: 18, color: Colors.grey),
-              ),
-
-              SizedBox(height: 5),
-
-              Text(
-                "Manage Your Attendance Efficiently",
+                "Employee Attendance Management System",
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.grey),
               ),
 
               Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 16,
-                  horizontal: 32,
-                ),
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.person),
-                        hintText: "Enter Name",
-                        labelText: "Employee Name",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
-                        ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Name cannot be empty";
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        name = value;
-                        setState(() {});
-                      },
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Card(
+                  elevation: 10,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 32,
                     ),
-
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.business),
-                        hintText: "Enter Department",
-                        labelText: "Department",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          textCapitalization: TextCapitalization.words,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.person),
+                            hintText: "Enter Name",
+                            labelText: "Employee Name",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Name cannot be empty";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            name = value;
+                            setState(() {});
+                          },
                         ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Class cannot be empty";
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        department = value;
-                      },
-                    ),
 
-                    TextFormField(
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.badge),
-                        hintText: "Enter Employee ID",
-                        labelText: "Employee ID",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                        SizedBox(height: 15),
+
+                        TextFormField(
+                          keyboardType: TextInputType.text,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.business),
+                            hintText: "Enter Department",
+                            labelText: "Department",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Department cannot be empty";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            department = value;
+                          },
                         ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Roll Number cannot be empty";
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        employeeId = value;
-                      },
-                    ),
 
-                    TextFormField(
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email),
-                        hintText: "Enter Email",
-                        labelText: "Email",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                        SizedBox(height: 15),
+
+                        TextFormField(
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.badge),
+                            hintText: "Enter Employee ID",
+                            labelText: "Employee ID",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Employee ID cannot be empty";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            employeeId = value;
+                          },
                         ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Email cannot be empty";
-                        } else if (!value.contains("@")) {
-                          return "Enter a valid email";
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        email = value;
-                      },
-                    ),
 
-                    TextFormField(
-                      keyboardType: TextInputType.phone,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.phone),
-                        hintText: "Enter Contact Number",
-                        labelText: "Contact Number",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(15),
+                        SizedBox(height: 15),
+
+                        TextFormField(
+                          keyboardType: TextInputType.emailAddress,
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.email),
+                            hintText: "Enter Email",
+                            labelText: "Email",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Email cannot be empty";
+                            } else if (!value.contains("@")) {
+                              return "Enter a valid email";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            email = value;
+                          },
                         ),
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Contact Number cannot be empty";
-                        } else if (value.length != 10) {
-                          return "Enter a valid 10 digit number";
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        contactNo = value;
-                      },
-                    ),
 
-                    SizedBox(height: 20),
-                    Material(
-                      color: Colors.deepPurple,
-                      borderRadius: BorderRadius.circular(
-                        changeButton ? 50 : 8,
-                      ),
-                      child: InkWell(
-                        onTap: () => moveToHome(context),
-                        child: AnimatedContainer(
-                          duration: Duration(seconds: 1),
-                          width: changeButton ? 50 : 150,
-                          height: 50,
-                          alignment: Alignment.center,
-                          child: changeButton
-                              ? Icon(Icons.done, color: Colors.white)
-                              : Text(
-                                  "Submit",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                ),
+                        SizedBox(height: 15),
 
-                          // shape: changeButton
-                          // ?BoxShape.circle :
-                          // BoxShape.rectangle,
+                        TextFormField(
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.phone),
+                            hintText: "Enter Contact Number",
+                            labelText: "Contact Number",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Contact Number cannot be empty";
+                            } else if (value.length != 10) {
+                              return "Enter a valid 10 digit number";
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            contactNo = value;
+                          },
                         ),
-                      ),
-                    ),
 
-                    // ElevatedButton(
-                    //   child: Text("Login"),
-                    //   style: TextButton.styleFrom(minimumSize: Size(150, 40)),
-                    //   onPressed: () {
-                    //   Navigator.pushNamed(context, MyRoutes.homeRoute);
-                    //   },
-                    // ),
-                  ],
+                        SizedBox(height: 20),
+                        Material(
+                          color: Colors.deepPurple,
+                          borderRadius: BorderRadius.circular(
+                            changeButton ? 50 : 15,
+                          ),
+                          child: InkWell(
+                            onTap: () => moveToHome(context),
+                            child: AnimatedContainer(
+                              duration: Duration(seconds: 1),
+                              width: changeButton ? 50 : 180,
+                              height: 50,
+                              alignment: Alignment.center,
+                              child: changeButton
+                                  ? Icon(Icons.done, color: Colors.white)
+                                  : Text(
+                                      "Login",
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+
+                              // shape: changeButton
+                              // ?BoxShape.circle :
+                              // BoxShape.rectangle,
+                            ),
+                          ),
+                        ),
+
+                        // ElevatedButton(
+                        //   child: Text("Login"),
+                        //   style: TextButton.styleFrom(minimumSize: Size(150, 40)),
+                        //   onPressed: () {
+                        //   Navigator.pushNamed(context, MyRoutes.homeRoute);
+                        //   },
+                        // ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],

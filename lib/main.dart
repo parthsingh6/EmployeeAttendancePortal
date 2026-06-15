@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:my_new_app/pages/login_page.dart';
 import 'pages/home_page.dart';
 import 'package:my_new_app/utils/routes.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -15,7 +16,7 @@ class MyApp extends StatelessWidget {
     String name = "parth";
 
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: false,
       themeMode: ThemeMode.light,
       theme: ThemeData(
         primarySwatch: Colors.deepPurple,
@@ -30,7 +31,6 @@ class MyApp extends StatelessWidget {
         "/login": (context) => LoginPage(),
         MyRoutes.homeRoute: (context) => HomePage(),
         MyRoutes.loginRoute: (context) => LoginPage(),
-        
       },
     );
   }

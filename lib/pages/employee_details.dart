@@ -10,8 +10,8 @@ class StudentDetails extends StatefulWidget {
 
 class _StudentDetailsState extends State<StudentDetails> {
   String name = "";
-  String studentClass = "";
-  String rollNo = "";
+  String department = "";
+  String employeeID = "";
   String email = "";
   String contactNo = "";
 
@@ -26,8 +26,8 @@ class _StudentDetailsState extends State<StudentDetails> {
 
     setState(() {
       name = prefs.getString("name") ?? "";
-      studentClass = prefs.getString("class") ?? "";
-      rollNo = prefs.getString("rollNo") ?? "";
+      department = prefs.getString("department") ?? "";
+      employeeID = prefs.getString("employeeID") ?? "";
       email = prefs.getString("email") ?? "";
       contactNo = prefs.getString("contactNo") ?? "";
     });
@@ -36,7 +36,7 @@ class _StudentDetailsState extends State<StudentDetails> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Student Details")),
+      appBar: AppBar(title: const Text("Employee Details")),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -45,10 +45,10 @@ class _StudentDetailsState extends State<StudentDetails> {
             Text("Name: $name"),
             SizedBox(height: 10),
 
-            Text("Class: $studentClass"),
+            Text("Department: $department"),
             SizedBox(height: 10),
 
-            Text("Roll No: $rollNo"),
+            Text("Employee ID: $employeeID"),
             SizedBox(height: 10),
 
             Text("Email: $email"),
