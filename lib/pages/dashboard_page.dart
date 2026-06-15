@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_new_app/pages/attendance_page.dart';
+import 'package:my_new_app/pages/profile_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -253,7 +254,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       );
                     },
-                  
+
                     child: Card(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -296,14 +297,24 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
 
-                  Card(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.person, size: 40, color: Colors.blue),
-                        SizedBox(height: 10),
-                        Text("Profile"),
-                      ],
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
+                        ),
+                      );
+                    },
+                    child: Card(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person, size: 40, color: Colors.blue),
+                          SizedBox(height: 10),
+                          Text("Profile"),
+                        ],
+                      ),
                     ),
                   ),
                 ],
