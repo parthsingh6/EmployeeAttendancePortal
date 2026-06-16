@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_new_app/pages/attendance_page.dart';
 import 'package:my_new_app/pages/profile_page.dart';
+import 'package:my_new_app/pages/leave_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -103,17 +104,57 @@ class _DashboardPageState extends State<DashboardPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "${getGreeting()}, $name 👋",
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      child: Icon(Icons.person, size: 35),
+                    ),
+
+                    SizedBox(width: 15),
+
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        SizedBox(height: 5),
+
+                        Text(
+                          "Department: ${department.isNotEmpty ? department[0].toUpperCase() + department.substring(1) : ''}",
+                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                        ),
+
+                        SizedBox(height: 5),
+
+                        Text(
+                          getGreeting(),
+                          style: TextStyle(
+                            color: Colors.blue,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
 
-            SizedBox(height: 5),
-
-            Text(
-              "Department: $department",
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
+            SizedBox(height: 25),
             SizedBox(height: 25),
             Text(
               "Attendance Summary",
@@ -122,19 +163,17 @@ class _DashboardPageState extends State<DashboardPage> {
 
             SizedBox(height: 10),
 
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-
-              child: Padding(
-                padding: EdgeInsets.all(20),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    Column(
-                      children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      children: const [
                         Text(
                           "20",
                           style: TextStyle(
@@ -143,12 +182,24 @@ class _DashboardPageState extends State<DashboardPage> {
                             color: Colors.green,
                           ),
                         ),
+                        SizedBox(height: 5),
                         Text("Present"),
                       ],
                     ),
+                  ),
+                ),
 
-                    Column(
-                      children: [
+                const SizedBox(width: 10),
+
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.orange.shade50,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      children: const [
                         Text(
                           "2",
                           style: TextStyle(
@@ -157,12 +208,24 @@ class _DashboardPageState extends State<DashboardPage> {
                             color: Colors.orange,
                           ),
                         ),
+                        SizedBox(height: 5),
                         Text("Leave"),
                       ],
                     ),
+                  ),
+                ),
 
-                    Column(
-                      children: [
+                const SizedBox(width: 10),
+
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.all(15),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Column(
+                      children: const [
                         Text(
                           "1",
                           style: TextStyle(
@@ -171,14 +234,14 @@ class _DashboardPageState extends State<DashboardPage> {
                             color: Colors.red,
                           ),
                         ),
+                        SizedBox(height: 5),
                         Text("Absent"),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-            SizedBox(height: 25),
 
             Card(
               elevation: 5,
@@ -193,20 +256,32 @@ class _DashboardPageState extends State<DashboardPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Today's Status",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              color: Colors.blue,
+                              size: 20,
+                            ),
+
+                            SizedBox(width: 5),
+
+                            Text(
+                              "Today's Status",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                         SizedBox(height: 5),
                         Text(
                           !isPunchedIn
-                              ? "Not Punched In"
+                              ? "🔴 Not Punched In"
                               : isPunchedOut
-                              ? "Present\nPunch In: $punchInTime\nPunch Out: $punchOutTime\nWorking Hours: $workingHours"
-                              : "Present\nPunch In: $punchInTime",
+                              ? "🟢 Present\nPunch In: $punchInTime\nPunch Out: $punchOutTime\nWorking Hours: $workingHours"
+                              : "🟢 Present\nPunch In: $punchInTime",
                           style: TextStyle(
                             color: isPunchedIn ? Colors.green : Colors.red,
                           ),
@@ -244,6 +319,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 crossAxisCount: 2,
                 crossAxisSpacing: 15,
                 mainAxisSpacing: 15,
+                childAspectRatio: 1.3,
                 children: [
                   InkWell(
                     onTap: () {
@@ -264,8 +340,54 @@ class _DashboardPageState extends State<DashboardPage> {
                             size: 40,
                             color: Colors.deepPurple,
                           ),
-                          SizedBox(height: 10),
-                          Text("Attendance"),
+                          SizedBox(height: 5),
+                          Text(
+                            "Attendance",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "View Records",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LeavePage(),
+                        ),
+                      );
+                    },
+
+                    child: Card(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.beach_access,
+                            size: 40,
+                            color: Colors.orange,
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            "Leave",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "Apply Leave",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
                         ],
                       ),
                     ),
@@ -275,24 +397,19 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(
-                          Icons.beach_access,
-                          size: 40,
-                          color: Colors.orange,
-                        ),
-                        SizedBox(height: 10),
-                        Text("Leave"),
-                      ],
-                    ),
-                  ),
-
-                  Card(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
                         Icon(Icons.bar_chart, size: 40, color: Colors.green),
-                        SizedBox(height: 10),
-                        Text("Reports"),
+                        SizedBox(height: 5),
+                        Text(
+                          "Reports",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+
+                        SizedBox(height: 3),
+
+                        Text(
+                          "View Reports",
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
                       ],
                     ),
                   ),
@@ -311,8 +428,18 @@ class _DashboardPageState extends State<DashboardPage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.person, size: 40, color: Colors.blue),
-                          SizedBox(height: 10),
-                          Text("Profile"),
+                          SizedBox(height: 5),
+                          Text(
+                            "Profile",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "Employee Info",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
                         ],
                       ),
                     ),

@@ -36,9 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Profile"),
-      ),
+      appBar: AppBar(title: const Text("Profile")),
 
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -49,19 +47,70 @@ class _ProfilePageState extends State<ProfilePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Name: $name"),
-                SizedBox(height: 10),
+                Center(
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.deepPurple.shade100,
+                        child: const Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Colors.deepPurple,
+                        ),
+                      ),
 
-                Text("Department: $department"),
-                SizedBox(height: 10),
+                      const SizedBox(height: 10),
 
-                Text("Employee ID: $employeeId"),
-                SizedBox(height: 10),
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
 
-                Text("Email: $email"),
-                SizedBox(height: 10),
+                      const SizedBox(height: 5),
 
-                Text("Contact: $contactNo"),
+                      const Text(
+                        "Employee",
+                        style: TextStyle(color: Colors.grey),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Divider(),
+                    ],
+                  ),
+                ),
+
+                ListTile(
+                  leading: const Icon(Icons.business),
+                  title: const Text("Department"),
+                  subtitle: Text(
+                    department.isNotEmpty
+                        ? "${department[0].toUpperCase()}${department.substring(1)}"
+                        : "",
+                  ),
+                ),
+
+                ListTile(
+                  leading: const Icon(Icons.badge),
+                  title: const Text("Employee ID"),
+                  subtitle: Text(employeeId),
+                ),
+
+                ListTile(
+                  leading: const Icon(Icons.email),
+                  title: const Text("Email"),
+                  subtitle: Text(email),
+                ),
+
+                ListTile(
+                  leading: const Icon(Icons.phone),
+                  title: const Text("Contact"),
+                  subtitle: Text(contactNo),
+                ),
               ],
             ),
           ),

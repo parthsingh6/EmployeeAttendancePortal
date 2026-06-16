@@ -12,8 +12,7 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
-    int days = 30;
-    String name = "parth";
+  
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
