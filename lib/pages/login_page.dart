@@ -4,6 +4,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_new_app/pages/dashboard_page.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
@@ -19,7 +21,7 @@ class _LoginPageState extends State<LoginPage> {
 
   final _formKey = GlobalKey<FormState>();
 
-  moveToHome(BuildContext context) async {
+  Future<void> moveToHome() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
         changeButton = true;
@@ -32,8 +34,10 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setString("email", email);
       await prefs.setString("contactNo", contactNo);
 
+      if (!mounted) return;
+
       Navigator.push(
-        context,
+        this.context,
         MaterialPageRoute(builder: (context) => const DashboardPage()),
       );
 
@@ -223,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                             changeButton ? 50 : 15,
                           ),
                           child: InkWell(
-                            onTap: () => moveToHome(context),
+                            onTap: moveToHome,
                             child: AnimatedContainer(
                               duration: Duration(seconds: 1),
                               width: changeButton ? 50 : 180,
