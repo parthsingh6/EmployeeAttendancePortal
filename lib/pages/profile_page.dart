@@ -72,11 +72,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
                       const SizedBox(height: 5),
 
-                      const Text(
-                        "Employee",
-                        style: TextStyle(color: Colors.grey),
+                      Text(
+                        "${department.isNotEmpty ? department[0].toUpperCase() + department.substring(1) : ''} Department",
+                        style: TextStyle(color: Colors.grey, fontSize: 16),
                       ),
-
                       const SizedBox(height: 20),
 
                       Divider(),

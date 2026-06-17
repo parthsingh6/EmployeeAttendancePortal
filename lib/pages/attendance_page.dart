@@ -6,25 +6,71 @@ class AttendancePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Attendance History"),
-      ),
+      appBar: AppBar(title: const Text("Attendance History")),
 
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Card(
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 30,
+                      backgroundColor: Colors.green.shade100,
+                      child: const Icon(
+                        Icons.calendar_month,
+                        color: Colors.green,
+                        size: 30,
+                      ),
+                    ),
 
-            Text(
-              "Attendance Record",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
+                    const SizedBox(width: 15),
+
+                    const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Attendance Record",
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        Text(
+                          "Daily attendance details",
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
 
-            SizedBox(height: 20),
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: const ListTile(
+                leading: Icon(Icons.calendar_today, color: Colors.deepPurple),
+                title: Text("Date"),
+                subtitle: Text("17 Jun 2026"),
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const SizedBox(height: 20),
 
             Card(
               child: ListTile(

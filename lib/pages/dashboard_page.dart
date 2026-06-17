@@ -3,6 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_new_app/pages/attendance_page.dart';
 import 'package:my_new_app/pages/profile_page.dart';
 import 'package:my_new_app/pages/leave_page.dart';
+import 'package:my_new_app/pages/reports_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -14,6 +15,7 @@ class DashboardPage extends StatefulWidget {
 class _DashboardPageState extends State<DashboardPage> {
   String name = "";
   String department = "";
+  String employeeId = "";
 
   String punchInTime = "";
   bool isPunchedIn = false;
@@ -75,6 +77,7 @@ class _DashboardPageState extends State<DashboardPage> {
     setState(() {
       name = prefs.getString("name") ?? "";
       department = prefs.getString("department") ?? "";
+      employeeId = prefs.getString("employeeID") ?? "";
     });
   }
 
@@ -115,7 +118,12 @@ class _DashboardPageState extends State<DashboardPage> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      child: Icon(Icons.person, size: 35),
+                      backgroundColor: Colors.deepPurple.shade100,
+                      child: Icon(
+                        Icons.person,
+                        size: 35,
+                        color: Colors.deepPurple,
+                      ),
                     ),
 
                     SizedBox(width: 15),
@@ -124,7 +132,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          name,
+                          name.isNotEmpty
+                              ? name[0].toUpperCase() + name.substring(1)
+                              : "",
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -135,13 +145,26 @@ class _DashboardPageState extends State<DashboardPage> {
 
                         Text(
                           "Department: ${department.isNotEmpty ? department[0].toUpperCase() + department.substring(1) : ''}",
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey.shade700,
+                          ),
                         ),
 
                         SizedBox(height: 5),
 
                         Text(
-                          getGreeting(),
+                          "Employee ID: $employeeId",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey.shade700,
+                          ),
+                        ),
+
+                        SizedBox(height: 5),
+
+                        Text(
+                          "${getGreeting()} 👋",
                           style: TextStyle(
                             color: Colors.blue,
                             fontWeight: FontWeight.w500,
@@ -155,7 +178,7 @@ class _DashboardPageState extends State<DashboardPage> {
             ),
 
             SizedBox(height: 25),
-            SizedBox(height: 25),
+
             Text(
               "Attendance Summary",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -393,24 +416,37 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
 
-                  Card(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(Icons.bar_chart, size: 40, color: Colors.green),
-                        SizedBox(height: 5),
-                        Text(
-                          "Reports",
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ReportsPage(),
                         ),
+                      );
+                    },
 
-                        SizedBox(height: 3),
+                    child: Card(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.bar_chart, size: 40, color: Colors.green),
 
-                        Text(
-                          "View Reports",
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                        ),
-                      ],
+                          SizedBox(height: 5),
+
+                          Text(
+                            "Reports",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "View Reports",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
 
