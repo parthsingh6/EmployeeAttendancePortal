@@ -1,8 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class AttendancePage extends StatelessWidget {
+class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
 
+  @override
+  State<AttendancePage> createState() => _AttendancePageState();
+}
+
+class _AttendancePageState extends State<AttendancePage> {
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -61,42 +68,54 @@ class AttendancePage extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
-              child: const ListTile(
-                leading: Icon(Icons.calendar_today, color: Colors.deepPurple),
-                title: Text("Date"),
-                subtitle: Text("17 Jun 2026"),
+              child: ListTile(
+                leading: const Icon(
+                  Icons.calendar_today,
+                  color: Colors.deepPurple,
+                ),
+                title: const Text("Date"),
+                subtitle: Text(
+  DateFormat('dd MMM yyyy').format(DateTime.now()),
+),
               ),
+            ),
+
+            const SizedBox(height: 20),
+
+            const Text(
+              "Attendance History",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 10),
 
-            const SizedBox(height: 20),
+            Expanded(
+              child: ListView(
+                children: [
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.check_circle, color: Colors.green),
+                      title: Text("18 Jun 2026"),
+                      subtitle: Text("Present"),
+                    ),
+                  ),
 
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.login, color: Colors.green),
-                title: Text("Punch In"),
-                subtitle: Text("12:49 PM"),
-              ),
-            ),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.check_circle, color: Colors.green),
+                      title: Text("17 Jun 2026"),
+                      subtitle: Text("Present"),
+                    ),
+                  ),
 
-            SizedBox(height: 10),
-
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.logout, color: Colors.red),
-                title: Text("Punch Out"),
-                subtitle: Text("5:32 PM"),
-              ),
-            ),
-
-            SizedBox(height: 10),
-
-            Card(
-              child: ListTile(
-                leading: Icon(Icons.timer, color: Colors.blue),
-                title: Text("Working Hours"),
-                subtitle: Text("4h 43m"),
+                  Card(
+                    child: ListTile(
+                      leading: Icon(Icons.cancel, color: Colors.red),
+                      title: Text("16 Jun 2026"),
+                      subtitle: Text("Absent"),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],

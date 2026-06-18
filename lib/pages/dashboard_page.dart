@@ -4,6 +4,7 @@ import 'package:my_new_app/pages/attendance_page.dart';
 import 'package:my_new_app/pages/profile_page.dart';
 import 'package:my_new_app/pages/leave_page.dart';
 import 'package:my_new_app/pages/reports_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -27,6 +28,8 @@ class _DashboardPageState extends State<DashboardPage> {
   DateTime? punchInDateTime;
   DateTime? punchOutDateTime;
 
+  final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
   void punchOut() {
     DateTime now = DateTime.now();
 
@@ -48,6 +51,17 @@ class _DashboardPageState extends State<DashboardPage> {
           "${difference.inSeconds % 60}s";
 
       isPunchedOut = true;
+    });
+
+    firestore.collection("attendance").add({
+      "employeeId": employeeId,
+      "employeeName": name,
+      "department": department,
+      "date": Timestamp.now(),
+      "punchIn": punchInTime,
+      "punchOut": punchOutTime,
+      "workingHours": workingHours,
+      "status": "Present",
     });
   }
 
