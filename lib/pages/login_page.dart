@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_new_app/pages/dashboard_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -33,6 +34,15 @@ class _LoginPageState extends State<LoginPage> {
       await prefs.setString("employeeID", employeeId);
       await prefs.setString("email", email);
       await prefs.setString("contactNo", contactNo);
+
+      await FirebaseFirestore.instance.collection("employees").add({
+        "name": name,
+        "department": department,
+        "employeeID": employeeId,
+        "email": email,
+        "contactNo": contactNo,
+        "createdAt": Timestamp.now(),
+      });
 
       if (!mounted) return;
 

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "300131779319",
+    "project_id": "employeeattendanceportal-f0f45",
+    "storage_bucket": "employeeattendanceportal-f0f45.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:300131779319:android:57149f7eb2bb606a8949f2",
+        "android_client_info": {
+          "package_name": "com.example.my_new_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4Du2U3C2J4EdUZPBO8z0lnbIOgQZRvMI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
