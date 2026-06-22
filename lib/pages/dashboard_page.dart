@@ -5,6 +5,7 @@ import 'package:my_new_app/pages/profile_page.dart';
 import 'package:my_new_app/pages/leave_page.dart';
 import 'package:my_new_app/pages/reports_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -17,6 +18,10 @@ class _DashboardPageState extends State<DashboardPage> {
   String name = "";
   String department = "";
   String employeeId = "";
+  int presentCount = 0;
+  int absentCount = 0;
+  int leaveCount = 0;
+  double attendancePercentage = 0;
 
   String punchInTime = "";
   bool isPunchedIn = false;
@@ -29,6 +34,35 @@ class _DashboardPageState extends State<DashboardPage> {
   DateTime? punchOutDateTime;
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  Future<void> loadAttendanceSummary() async {
+    QuerySnapshot snapshot = await firestore.collection("attendance").get();
+
+    int present = 0;
+    int absent = 0;
+    int leave = 0;
+
+    for (var doc in snapshot.docs) {
+      String status = doc["status"];
+
+      if (status == "Present" || status == "Late") {
+        present++;
+      } else if (status == "Absent") {
+        absent++;
+      } else if (status == "Leave") {
+        leave++;
+      }
+    }
+
+    setState(() {
+      presentCount = present;
+      absentCount = absent;
+      leaveCount = leave;
+
+      attendancePercentage = (presentCount + leaveCount) == 0
+          ? 0
+          : (presentCount / (presentCount + leaveCount + absentCount)) * 100;
+    });
+  }
 
   void punchOut() {
     DateTime now = DateTime.now();
@@ -40,6 +74,24 @@ class _DashboardPageState extends State<DashboardPage> {
     String period = now.hour >= 12 ? "PM" : "AM";
 
     Duration difference = now.difference(punchInDateTime!);
+
+    String attendanceStatus;
+
+    if (difference.inHours >= 8) {
+      attendanceStatus = "Present";
+    } else if (difference.inHours >= 4) {
+      attendanceStatus = "Half Day";
+    } else {
+      attendanceStatus = "Absent";
+    }
+
+    bool isLate =
+        punchInDateTime!.hour > 9 ||
+        (punchInDateTime!.hour == 9 && punchInDateTime!.minute > 0);
+
+    if (isLate && attendanceStatus == "Present") {
+      attendanceStatus = "Late";
+    }
 
     setState(() {
       punchOutTime = "$hour:$minute $period";
@@ -61,7 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
       "punchIn": punchInTime,
       "punchOut": punchOutTime,
       "workingHours": workingHours,
-      "status": "Present",
+      "status": attendanceStatus,
     });
   }
 
@@ -83,6 +135,7 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     loadData();
+    loadAttendanceSummary();
   }
 
   Future<void> loadData() async {
@@ -184,6 +237,16 @@ class _DashboardPageState extends State<DashboardPage> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+
+                        SizedBox(height: 5),
+
+                        Text(
+                          DateFormat('dd MMMM yyyy').format(DateTime.now()),
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
                       ],
                     ),
                   ],
@@ -210,9 +273,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
-                      children: const [
+                      children: [
                         Text(
-                          "20",
+                          presentCount.toString(),
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -236,9 +299,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
-                      children: const [
+                      children: [
                         Text(
-                          "2",
+                          leaveCount.toString(),
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -262,9 +325,9 @@ class _DashboardPageState extends State<DashboardPage> {
                       borderRadius: BorderRadius.circular(15),
                     ),
                     child: Column(
-                      children: const [
+                      children: [
                         Text(
-                          "1",
+                          absentCount.toString(),
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -278,6 +341,49 @@ class _DashboardPageState extends State<DashboardPage> {
                   ),
                 ),
               ],
+            ),
+
+            const SizedBox(height: 20),
+
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      "Attendance Percentage",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    Text(
+                      "${attendancePercentage.toStringAsFixed(1)}%",
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    LinearProgressIndicator(
+                      value: attendancePercentage / 100,
+                      minHeight: 8,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ],
+                ),
+              ),
             ),
 
             Card(
@@ -321,6 +427,7 @@ class _DashboardPageState extends State<DashboardPage> {
                               : "🟢 Present\nPunch In: $punchInTime",
                           style: TextStyle(
                             color: isPunchedIn ? Colors.green : Colors.red,
+                            fontSize: 13,
                           ),
                         ),
                       ],
