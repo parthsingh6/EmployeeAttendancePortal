@@ -34,6 +34,50 @@ class _DashboardPageState extends State<DashboardPage> {
   DateTime? punchOutDateTime;
 
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+  Future<void> saveAttendanceState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setBool("isPunchedIn", isPunchedIn);
+    await prefs.setBool("isPunchedOut", isPunchedOut);
+
+    await prefs.setString("punchInTime", punchInTime);
+    await prefs.setString("punchOutTime", punchOutTime);
+    await prefs.setString("workingHours", workingHours);
+    if (punchInDateTime != null) {
+      await prefs.setString(
+        "punchInDateTime",
+        punchInDateTime!.toIso8601String(),
+      );
+    }
+  }
+
+  Future<void> loadAttendanceState() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    String? savedPunchInDateTime = prefs.getString("punchInDateTime");
+
+    if (savedPunchInDateTime != null) {
+      punchInDateTime = DateTime.parse(savedPunchInDateTime);
+    }
+
+    print("Loaded punchInDateTime: $punchInDateTime");
+
+    setState(() {
+      isPunchedIn = prefs.getBool("isPunchedIn") ?? false;
+      isPunchedOut = prefs.getBool("isPunchedOut") ?? false;
+
+      punchInTime = prefs.getString("punchInTime") ?? "";
+      punchOutTime = prefs.getString("punchOutTime") ?? "";
+      workingHours = prefs.getString("workingHours") ?? "";
+
+      if (punchInDateTime == null) {
+        isPunchedIn = false;
+        isPunchedOut = false;
+        punchInTime = "";
+      }
+    });
+  }
+
   Future<void> loadAttendanceSummary() async {
     QuerySnapshot snapshot = await firestore.collection("attendance").get();
 
@@ -65,6 +109,9 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void punchOut() {
+    print("Punch Out Clicked");
+    print("punchInDateTime = $punchInDateTime");
+
     DateTime now = DateTime.now();
 
     String hour = (now.hour % 12 == 0) ? "12" : (now.hour % 12).toString();
@@ -73,25 +120,25 @@ class _DashboardPageState extends State<DashboardPage> {
 
     String period = now.hour >= 12 ? "PM" : "AM";
 
+    if (punchInDateTime == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Punch In time not found. Please Punch In again."),
+        ),
+      );
+      return;
+    }
     Duration difference = now.difference(punchInDateTime!);
 
-    String attendanceStatus;
+    String attendanceStatus = "Present";
 
-    if (difference.inHours >= 8) {
-      attendanceStatus = "Present";
-    } else if (difference.inHours >= 4) {
-      attendanceStatus = "Half Day";
-    } else {
-      attendanceStatus = "Absent";
-    }
+    // bool isLate =
+    //     punchInDateTime!.hour > 9 ||
+    //     (punchInDateTime!.hour == 9 && punchInDateTime!.minute > 0);
 
-    bool isLate =
-        punchInDateTime!.hour > 9 ||
-        (punchInDateTime!.hour == 9 && punchInDateTime!.minute > 0);
-
-    if (isLate && attendanceStatus == "Present") {
-      attendanceStatus = "Late";
-    }
+    // if (isLate && attendanceStatus == "Present") {
+    //   attendanceStatus = "Late";
+    // }
 
     setState(() {
       punchOutTime = "$hour:$minute $period";
@@ -104,6 +151,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
       isPunchedOut = true;
     });
+
+    saveAttendanceState();
 
     firestore.collection("attendance").add({
       "employeeId": employeeId,
@@ -134,8 +183,10 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+
     loadData();
     loadAttendanceSummary();
+    loadAttendanceState();
   }
 
   Future<void> loadData() async {
@@ -146,6 +197,16 @@ class _DashboardPageState extends State<DashboardPage> {
       department = prefs.getString("department") ?? "";
       employeeId = prefs.getString("employeeID") ?? "";
     });
+  }
+
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.clear();
+
+    if (!mounted) return;
+
+    Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
   }
 
   void punchIn() {
@@ -162,449 +223,436 @@ class _DashboardPageState extends State<DashboardPage> {
       punchInDateTime = now;
       isPunchedIn = true;
     });
+    saveAttendanceState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Dashboard")),
+      appBar: AppBar(
+        title: const Text("Dashboard"),
+
+        actions: [
+          IconButton(icon: const Icon(Icons.logout), onPressed: logout),
+        ],
+      ),
 
       body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.deepPurple.shade100,
-                      child: Icon(
-                        Icons.person,
-                        size: 35,
-                        color: Colors.deepPurple,
+        padding: const EdgeInsets.all(15),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 25,
+                        backgroundColor: Colors.deepPurple.shade100,
+                        child: Icon(
+                          Icons.person,
+                          size: 30,
+                          color: Colors.deepPurple,
+                        ),
                       ),
-                    ),
 
-                    SizedBox(width: 15),
+                      SizedBox(width: 10),
 
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          name.isNotEmpty
-                              ? name[0].toUpperCase() + name.substring(1)
-                              : "",
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.bold,
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            name.isNotEmpty
+                                ? name[0].toUpperCase() + name.substring(1)
+                                : "",
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
 
-                        SizedBox(height: 5),
+                          SizedBox(height: 5),
 
-                        Text(
-                          "Department: ${department.isNotEmpty ? department[0].toUpperCase() + department.substring(1) : ''}",
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey.shade700,
+                          Text(
+                            "Department: ${department.isNotEmpty ? department[0].toUpperCase() + department.substring(1) : ''}",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.grey.shade700,
+                            ),
                           ),
-                        ),
 
-                        SizedBox(height: 5),
+                          SizedBox(height: 5),
 
-                        Text(
-                          "Employee ID: $employeeId",
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey.shade700,
+                          Text(
+                            "Employee ID: $employeeId",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey.shade700,
+                            ),
                           ),
-                        ),
 
-                        SizedBox(height: 5),
+                          SizedBox(height: 5),
 
-                        Text(
-                          "${getGreeting()} 👋",
-                          style: TextStyle(
-                            color: Colors.blue,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-
-                        SizedBox(height: 5),
-
-                        Text(
-                          DateFormat('dd MMMM yyyy').format(DateTime.now()),
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            SizedBox(height: 25),
-
-            Text(
-              "Attendance Summary",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            SizedBox(height: 10),
-
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          presentCount.toString(),
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text("Present"),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.shade50,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          leaveCount.toString(),
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text("Leave"),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(width: 10),
-
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.all(15),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          absentCount.toString(),
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.red,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text("Absent"),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(15),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "Attendance Percentage",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    Text(
-                      "${attendancePercentage.toStringAsFixed(1)}%",
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-
-                    const SizedBox(height: 10),
-
-                    LinearProgressIndicator(
-                      value: attendancePercentage / 100,
-                      minHeight: 8,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.access_time,
+                          Text(
+                            "${getGreeting()} 👋",
+                            style: TextStyle(
                               color: Colors.blue,
-                              size: 20,
+                              fontWeight: FontWeight.w500,
                             ),
-
-                            SizedBox(width: 5),
-
-                            Text(
-                              "Today's Status",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          !isPunchedIn
-                              ? "🔴 Not Punched In"
-                              : isPunchedOut
-                              ? "🟢 Present\nPunch In: $punchInTime\nPunch Out: $punchOutTime\nWorking Hours: $workingHours"
-                              : "🟢 Present\nPunch In: $punchInTime",
-                          style: TextStyle(
-                            color: isPunchedIn ? Colors.green : Colors.red,
-                            fontSize: 13,
                           ),
-                        ),
-                      ],
-                    ),
 
-                    ElevatedButton(
-                      onPressed: isPunchedOut
-                          ? null
-                          : (isPunchedIn ? punchOut : punchIn),
+                          SizedBox(height: 5),
 
-                      child: Text(
-                        isPunchedOut
-                            ? "Completed"
-                            : (isPunchedIn ? "Punch Out" : "Punch In"),
+                          Text(
+                            DateFormat('dd MMMM yyyy').format(DateTime.now()),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
 
-            SizedBox(height: 25),
+              SizedBox(height: 25),
 
-            Text(
-              "Quick Actions",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
+              Text(
+                "Attendance Summary",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
 
-            SizedBox(height: 15),
+              SizedBox(height: 10),
 
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-                childAspectRatio: 1.3,
+              Row(
                 children: [
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AttendancePage(),
-                        ),
-                      );
-                    },
-
-                    child: Card(
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade50,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.calendar_month,
-                            size: 40,
-                            color: Colors.deepPurple,
+                          Text(
+                            presentCount.toString(),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
                           ),
                           SizedBox(height: 5),
-                          Text(
-                            "Attendance",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-
-                          SizedBox(height: 3),
-
-                          Text(
-                            "View Records",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
+                          Text("Present"),
                         ],
                       ),
                     ),
                   ),
 
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LeavePage(),
-                        ),
-                      );
-                    },
+                  const SizedBox(width: 10),
 
-                    child: Card(
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.orange.shade50,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(
-                            Icons.beach_access,
-                            size: 40,
-                            color: Colors.orange,
+                          Text(
+                            leaveCount.toString(),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
                           ),
                           SizedBox(height: 5),
-                          Text(
-                            "Leave",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-
-                          SizedBox(height: 3),
-
-                          Text(
-                            "Apply Leave",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
+                          Text("Leave"),
                         ],
                       ),
                     ),
                   ),
 
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ReportsPage(),
-                        ),
-                      );
-                    },
+                  const SizedBox(width: 10),
 
-                    child: Card(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.bar_chart, size: 40, color: Colors.green),
-
-                          SizedBox(height: 5),
-
-                          Text(
-                            "Reports",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-
-                          SizedBox(height: 3),
-
-                          Text(
-                            "View Reports",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
-                        ],
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        borderRadius: BorderRadius.circular(15),
                       ),
-                    ),
-                  ),
-
-                  InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const ProfilePage(),
-                        ),
-                      );
-                    },
-                    child: Card(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.person, size: 40, color: Colors.blue),
+                          Text(
+                            absentCount.toString(),
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
                           SizedBox(height: 5),
-                          Text(
-                            "Profile",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-
-                          SizedBox(height: 3),
-
-                          Text(
-                            "Employee Info",
-                            style: TextStyle(fontSize: 12, color: Colors.grey),
-                          ),
+                          Text("Absent"),
                         ],
                       ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+
+              const SizedBox(height: 20),
+
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.access_time,
+                                color: Colors.blue,
+                                size: 20,
+                              ),
+
+                              SizedBox(width: 5),
+
+                              Text(
+                                "Today's Status",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 5),
+                          Text(
+                            !isPunchedIn
+                                ? "Not Punched In"
+                                : isPunchedOut
+                                ? "Present\nIn: $punchInTime\nOut: $punchOutTime"
+                                : "Punched In\n$punchInTime",
+                            style: TextStyle(
+                              color: isPunchedIn ? Colors.green : Colors.red,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      ElevatedButton(
+                        onPressed: isPunchedOut
+                            ? null
+                            : (isPunchedIn ? punchOut : punchIn),
+
+                        child: Text(
+                          isPunchedOut
+                              ? "Completed"
+                              : (isPunchedIn ? "Punch Out" : "Punch In"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              SizedBox(height: 15),
+
+              Text(
+                "Quick Actions",
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+
+              SizedBox(height: 15),
+
+              Container(
+                height: 350,
+                child: GridView.count(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 15,
+                  mainAxisSpacing: 15,
+                  childAspectRatio: 1.3,
+
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const AttendancePage(),
+                          ),
+                        );
+                      },
+
+                      child: Card(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.calendar_month,
+                              size: 32,
+                              color: Colors.deepPurple,
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              "Attendance",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+
+                            SizedBox(height: 3),
+
+                            Text(
+                              "View Records",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LeavePage(),
+                          ),
+                        );
+                      },
+
+                      child: Card(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.beach_access,
+                              size: 32,
+                              color: Colors.orange,
+                            ),
+                            SizedBox(height: 5),
+                            Text(
+                              "Leave",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+
+                            SizedBox(height: 3),
+
+                            Text(
+                              "Apply Leave",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ReportsPage(),
+                          ),
+                        );
+                      },
+
+                      child: Card(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.bar_chart,
+                              size: 32,
+                              color: Colors.green,
+                            ),
+
+                            SizedBox(height: 5),
+
+                            Text(
+                              "Reports",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+
+                            SizedBox(height: 3),
+
+                            Text(
+                              "View Reports",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    InkWell(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfilePage(),
+                          ),
+                        );
+                      },
+                      child: Card(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.person, size: 32, color: Colors.blue),
+                            SizedBox(height: 5),
+                            Text(
+                              "Profile",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+
+                            SizedBox(height: 3),
+
+                            Text(
+                              "Employee Info",
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

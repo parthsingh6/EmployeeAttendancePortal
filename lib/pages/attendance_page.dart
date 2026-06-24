@@ -16,6 +16,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
   Map<DateTime, String> attendanceMap = {};
 
+  List<Map<String, dynamic>> attendanceHistory = [];
+
   Future<void> loadAttendanceData() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("attendance")
@@ -23,16 +25,21 @@ class _AttendancePageState extends State<AttendancePage> {
 
     Map<DateTime, String> tempMap = {};
 
+    List<Map<String, dynamic>> tempHistory = [];
+
     for (var doc in snapshot.docs) {
       var data = doc.data() as Map<String, dynamic>;
 
       DateTime date = (data["date"] as Timestamp).toDate();
 
       tempMap[DateTime(date.year, date.month, date.day)] = data["status"];
+
+      tempHistory.add({"date": date, "status": data["status"]});
     }
 
     setState(() {
       attendanceMap = tempMap;
+      attendanceHistory = tempHistory;
     });
   }
 
@@ -188,6 +195,8 @@ class _AttendancePageState extends State<AttendancePage> {
 
             const SizedBox(height: 20),
 
+            const SizedBox(height: 20),
+
             const Text(
               "Attendance History",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -224,9 +233,13 @@ class _AttendancePageState extends State<AttendancePage> {
                           leading: Icon(
                             data["status"] == "Present"
                                 ? Icons.check_circle
+                                : data["status"] == "Late"
+                                ? Icons.access_time
                                 : Icons.cancel,
                             color: data["status"] == "Present"
                                 ? Colors.green
+                                : data["status"] == "Late"
+                                ? Colors.orange
                                 : Colors.red,
                           ),
 
@@ -245,7 +258,23 @@ class _AttendancePageState extends State<AttendancePage> {
                               Text("Punch Out: ${data["punchOut"]}"),
 
                               Text("Working Hours: ${data["workingHours"]}"),
-                              Text("Status: ${data["status"]}"),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.green.shade100,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  data["status"],
+                                  style: const TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ),

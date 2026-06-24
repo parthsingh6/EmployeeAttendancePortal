@@ -59,13 +59,13 @@ class _ReportsPageState extends State<ReportsPage> {
 
   Widget buildPieChart() {
     return SizedBox(
-      height: 220,
+      height: 160,
       child: Stack(
         alignment: Alignment.center,
         children: [
           PieChart(
             PieChartData(
-              centerSpaceRadius: 55,
+              centerSpaceRadius: 40,
               centerSpaceColor: Colors.white,
               sectionsSpace: 2,
               pieTouchData: PieTouchData(enabled: true),
@@ -75,28 +75,28 @@ class _ReportsPageState extends State<ReportsPage> {
                   value: presentCount.toDouble(),
                   color: Colors.green,
                   title: "",
-                  radius: 70,
+                  radius: 50,
                 ),
 
                 PieChartSectionData(
                   value: absentCount.toDouble(),
                   color: Colors.red,
                   title: "",
-                  radius: 70,
+                  radius: 50,
                 ),
 
                 PieChartSectionData(
                   value: lateCount.toDouble(),
                   color: Colors.orange,
                   title: "",
-                  radius: 70,
+                  radius: 50,
                 ),
 
                 PieChartSectionData(
                   value: halfDayCount.toDouble(),
                   color: Colors.amber,
                   title: "",
-                  radius: 70,
+                  radius: 50,
                 ),
               ],
             ),
@@ -183,52 +183,6 @@ class _ReportsPageState extends State<ReportsPage> {
 
             const SizedBox(height: 20),
 
-            const SizedBox(height: 15),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.circle, color: Colors.green, size: 12),
-                    const SizedBox(width: 5),
-                    Text("Present: $presentCount"),
-                  ],
-                ),
-
-                Row(
-                  children: [
-                    const Icon(Icons.circle, color: Colors.orange, size: 12),
-                    const SizedBox(width: 5),
-                    Text("Late: $lateCount"),
-                  ],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 10),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Icons.circle, color: Colors.red, size: 12),
-                    const SizedBox(width: 5),
-                    Text("Absent: $absentCount"),
-                  ],
-                ),
-
-                Row(
-                  children: [
-                    const Icon(Icons.circle, color: Colors.amber, size: 12),
-                    const SizedBox(width: 5),
-                    Text("Half Day: $halfDayCount"),
-                  ],
-                ),
-              ],
-            ),
-
             const SizedBox(height: 20),
             Card(
               elevation: 5,
@@ -254,6 +208,74 @@ class _ReportsPageState extends State<ReportsPage> {
                           style: const TextStyle(
                             fontSize: 18,
                             color: Colors.deepPurple,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 20),
+
+                    Divider(),
+
+                    SizedBox(height: 15),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Present"),
+                        Text(
+                          presentCount.toString(),
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Absent"),
+                        Text(
+                          absentCount.toString(),
+                          style: TextStyle(
+                            color: Colors.red,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Late"),
+                        Text(
+                          lateCount.toString(),
+                          style: TextStyle(
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height: 10),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Half Day"),
+                        Text(
+                          halfDayCount.toString(),
+                          style: TextStyle(
+                            color: Colors.amber,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

@@ -20,41 +20,91 @@ class _LoginPageState extends State<LoginPage> {
 
   bool changeButton = false;
 
+  final Map<String, Map<String, String>> employees = {
+    "111111": {
+      "name": "Parth",
+      "department": "Technology",
+      "email": "parth@work.com",
+      "contact": "9876543210",
+    },
+    "222222": {
+      "name": "Avni",
+      "department": "Human Resources",
+      "email": "avni@work.com",
+      "contact": "9876543211",
+    },
+    "333333": {
+      "name": "Nayan",
+      "department": "Finance",
+      "email": "nayan@work.com",
+      "contact": "9876543212",
+    },
+  };
+
   final _formKey = GlobalKey<FormState>();
 
   Future<void> moveToHome() async {
+    print("Login button clicked");
+    print("MOVE TO HOME CALLED");
     if (_formKey.currentState!.validate()) {
-      setState(() {
-        changeButton = true;
-      });
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+      print("Entered Name: $name");
+      print("Entered Employee ID: $employeeId");
+      if (!employees.containsKey(employeeId) ||
+          employees[employeeId]!["name"]!.toLowerCase() != name.toLowerCase()) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Login Failed"),
+            content: const Text("Invalid Employee Credentials"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+        );
 
-      await prefs.setString("name", name);
-      await prefs.setString("department", department);
-      await prefs.setString("employeeID", employeeId);
-      await prefs.setString("email", email);
-      await prefs.setString("contactNo", contactNo);
-
-      await FirebaseFirestore.instance.collection("employees").add({
-        "name": name,
-        "department": department,
-        "employeeID": employeeId,
-        "email": email,
-        "contactNo": contactNo,
-        "createdAt": Timestamp.now(),
-      });
-
-      if (!mounted) return;
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardPage()),
-      );
-
-      setState(() {
-        changeButton = false;
-      });
+        return;
+      }
     }
+
+    setState(() {
+      changeButton = true;
+    });
+
+    department = employees[employeeId]!["department"]!;
+    email = employees[employeeId]!["email"]!;
+    contactNo = employees[employeeId]!["contact"]!;
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.setString("name", name);
+    await prefs.setString("department", department);
+    await prefs.setString("employeeID", employeeId);
+    await prefs.setString("email", email);
+    await prefs.setString("contactNo", contactNo);
+
+await prefs.setBool("isLoggedIn", true);
+    await FirebaseFirestore.instance.collection("employees").add({
+      "name": name,
+      "department": department,
+      "employeeID": employeeId,
+      "email": email,
+      "contactNo": contactNo,
+      "createdAt": Timestamp.now(),
+    });
+
+    if (!mounted) return;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const DashboardPage()),
+    );
+
+    setState(() {
+      changeButton = false;
+    });
   }
 
   @override
@@ -131,29 +181,6 @@ class _LoginPageState extends State<LoginPage> {
                         SizedBox(height: 15),
 
                         TextFormField(
-                          keyboardType: TextInputType.text,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.business),
-                            hintText: "Enter Department",
-                            labelText: "Department",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Department cannot be empty";
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            department = value;
-                          },
-                        ),
-
-                        SizedBox(height: 15),
-
-                        TextFormField(
                           keyboardType: TextInputType.number,
                           inputFormatters: [
                             FilteringTextInputFormatter.digitsOnly,
@@ -179,65 +206,13 @@ class _LoginPageState extends State<LoginPage> {
 
                         SizedBox(height: 15),
 
-                        TextFormField(
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.email),
-                            hintText: "Enter Email",
-                            labelText: "Email",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Email cannot be empty";
-                            } else if (!value.contains("@")) {
-                              return "Enter a valid email";
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            email = value;
-                          },
-                        ),
-
-                        SizedBox(height: 15),
-
-                        TextFormField(
-                          keyboardType: TextInputType.phone,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.phone),
-                            hintText: "Enter Contact Number",
-                            labelText: "Contact Number",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Contact Number cannot be empty";
-                            } else if (value.length != 10) {
-                              return "Enter a valid 10 digit number";
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            contactNo = value;
-                          },
-                        ),
-
                         SizedBox(height: 20),
                         Material(
                           color: Colors.deepPurple,
-                          borderRadius: BorderRadius.circular(
-                            changeButton ? 50 : 15,
-                          ),
                           child: InkWell(
-                            onTap: moveToHome,
+                            onTap: () {
+                              moveToHome();
+                            },
                             child: AnimatedContainer(
                               duration: Duration(seconds: 1),
                               width: changeButton ? 50 : 180,
@@ -280,4 +255,5 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
+
 // Day9 update

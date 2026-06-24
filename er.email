@@ -1,0 +1,23 @@
+[33mcommit ae8badff9655483d26faf088243394f87ad4bfe8[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author:     Parth Singh <parth060106@gmail.com>
+AuthorDate: Tue Jun 23 15:42:54 2026 +0530
+Commit:     Parth Singh <parth060106@gmail.com>
+CommitDate: Tue Jun 23 15:42:54 2026 +0530
+
+    Reports analytics dashboard and UI refinements
+
+[33mcommit 90eab4c1f0d4fbf63b5c90f88bb8c12260147139[m
+Author:     Parth Singh <parth060106@gmail.com>
+AuthorDate: Mon Jun 22 18:00:00 2026 +0530
+Commit:     Parth Singh <parth060106@gmail.com>
+CommitDate: Tue Jun 23 15:42:38 2026 +0530
+
+    Dashboard enhancements and attendance summary updates
+
+[33mcommit 95c5f8cf3f96d2ce1583aafbbdfaabd5ff52f088[m
+Author:     Parth Singh <parth060106@gmail.com>
+AuthorDate: Fri Jun 19 18:00:00 2026 +0530
+Commit:     Parth Singh <parth060106@gmail.com>
+CommitDate: Tue Jun 23 15:42:27 2026 +0530
+
+    Attendance page improvements and calendar integration
