@@ -79,8 +79,10 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Future<void> loadAttendanceSummary() async {
-    QuerySnapshot snapshot = await firestore.collection("attendance").get();
-
+    QuerySnapshot snapshot = await firestore
+        .collection("attendance")
+        .where("employeeId", isEqualTo: employeeId)
+        .get();
     int present = 0;
     int absent = 0;
     int leave = 0;
@@ -184,9 +186,15 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
 
-    loadData();
-    loadAttendanceSummary();
-    loadAttendanceState();
+    initializeDashboard();
+  }
+
+  Future<void> initializeDashboard() async {
+    await loadData();
+
+    await loadAttendanceSummary();
+
+    await loadAttendanceState();
   }
 
   Future<void> loadData() async {
@@ -244,12 +252,12 @@ class _DashboardPageState extends State<DashboardPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Card(
-                elevation: 5,
+                elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
                       CircleAvatar(
@@ -277,7 +285,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
 
-                          SizedBox(height: 5),
+                          const SizedBox(height: 3),
 
                           Text(
                             "Department: ${department.isNotEmpty ? department[0].toUpperCase() + department.substring(1) : ''}",
@@ -287,7 +295,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
 
-                          SizedBox(height: 5),
+                          const SizedBox(height: 3),
 
                           Text(
                             "Employee ID: $employeeId",
@@ -297,7 +305,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
 
-                          SizedBox(height: 5),
+                          const SizedBox(height: 3),
 
                           Text(
                             "${getGreeting()} 👋",
@@ -307,7 +315,7 @@ class _DashboardPageState extends State<DashboardPage> {
                             ),
                           ),
 
-                          SizedBox(height: 5),
+                          const SizedBox(height: 3),
 
                           Text(
                             DateFormat('dd MMMM yyyy').format(DateTime.now()),
@@ -323,149 +331,236 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
 
-              SizedBox(height: 25),
+              const SizedBox(height: 25),
 
-              Text(
-                "Attendance Summary",
+              const Text(
+                "Attendance Overview",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
 
-              SizedBox(height: 10),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            presentCount.toString(),
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.green,
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                          Text("Present"),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.orange.shade50,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            leaveCount.toString(),
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange,
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                          Text("Leave"),
-                        ],
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 10),
-
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(15),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            absentCount.toString(),
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                          ),
-                          SizedBox(height: 5),
-                          Text("Absent"),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
               Card(
-                elevation: 5,
+                elevation: 2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
+                  child: Column(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.access_time,
-                                color: Colors.blue,
-                                size: 20,
+                              const Icon(
+                                Icons.check_circle,
+                                color: Colors.green,
                               ),
-
-                              SizedBox(width: 5),
-
-                              Text(
-                                "Today's Status",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                "Present",
+                                style: TextStyle(fontSize: 16),
                               ),
                             ],
                           ),
-                          SizedBox(height: 5),
                           Text(
-                            !isPunchedIn
-                                ? "Not Punched In"
-                                : isPunchedOut
-                                ? "Present\nIn: $punchInTime\nOut: $punchOutTime"
-                                : "Punched In\n$punchInTime",
-                            style: TextStyle(
-                              color: isPunchedIn ? Colors.green : Colors.red,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
+                            presentCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
                             ),
                           ),
                         ],
+                      ),
+
+                      const Divider(height: 25),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(
+                                Icons.event_busy,
+                                color: Colors.orange,
+                              ),
+                              const SizedBox(width: 10),
+                              const Text(
+                                "Leave",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            leaveCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const Divider(height: 25),
+
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.cancel, color: Colors.red),
+                              const SizedBox(width: 10),
+                              const Text(
+                                "Absent",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          Text(
+                            absentCount.toString(),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              Card(
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  isPunchedOut
+                                      ? Icons.check_circle
+                                      : Icons.access_time_filled,
+                                  color: isPunchedOut
+                                      ? Colors.green
+                                      : Colors.blue,
+                                ),
+
+                                const SizedBox(width: 8),
+
+                                Text(
+                                  isPunchedOut
+                                      ? "Attendance Completed"
+                                      : "Today's Status",
+                                  style: const TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            const SizedBox(height: 15),
+
+                            if (!isPunchedIn)
+                              const Text(
+                                "Not Punched In",
+                                style: TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+
+                            if (isPunchedIn) ...[
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.login,
+                                    size: 18,
+                                    color: Colors.green,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    "Punch In : $punchInTime",
+                                    style: const TextStyle(fontSize: 15),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 8),
+
+                              if (isPunchedOut)
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.logout,
+                                      size: 18,
+                                      color: Colors.red,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      "Punch Out : $punchOutTime",
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                  ],
+                                ),
+
+                              if (isPunchedOut) const SizedBox(height: 8),
+
+                              if (isPunchedOut)
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.timer,
+                                      size: 18,
+                                      color: Colors.deepPurple,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      workingHours,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ],
+                        ),
                       ),
 
                       ElevatedButton(
                         onPressed: isPunchedOut
                             ? null
                             : (isPunchedIn ? punchOut : punchIn),
+
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size(120, 46),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                        ),
 
                         child: Text(
                           isPunchedOut
@@ -478,178 +573,177 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
               ),
 
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
 
               Text(
                 "Quick Actions",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
 
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
 
-              Container(
-                height: 350,
-                child: GridView.count(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 15,
-                  mainAxisSpacing: 15,
-                  childAspectRatio: 1.3,
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 1.8,
 
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const AttendancePage(),
-                          ),
-                        );
-                      },
-
-                      child: Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.calendar_month,
-                              size: 32,
-                              color: Colors.deepPurple,
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              "Attendance",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-
-                            SizedBox(height: 3),
-
-                            Text(
-                              "View Records",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                children: [
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const AttendancePage(),
                         ),
+                      );
+                    },
+
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.calendar_month,
+                            size: 30,
+                            color: Colors.deepPurple,
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            "Attendance",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "View Records",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LeavePage(),
-                          ),
-                        );
-                      },
-
-                      child: Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.beach_access,
-                              size: 32,
-                              color: Colors.orange,
-                            ),
-                            SizedBox(height: 5),
-                            Text(
-                              "Leave",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-
-                            SizedBox(height: 3),
-
-                            Text(
-                              "Apply Leave",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LeavePage(),
                         ),
+                      );
+                    },
+
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.beach_access,
+                            size: 30,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(height: 3),
+                          Text(
+                            "Leave",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "Apply Leave",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ReportsPage(),
-                          ),
-                        );
-                      },
-
-                      child: Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.bar_chart,
-                              size: 32,
-                              color: Colors.green,
-                            ),
-
-                            SizedBox(height: 5),
-
-                            Text(
-                              "Reports",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-
-                            SizedBox(height: 3),
-
-                            Text(
-                              "View Reports",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ReportsPage(),
                         ),
+                      );
+                    },
+
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.bar_chart, size: 30, color: Colors.green),
+
+                          const SizedBox(height: 3),
+
+                          Text(
+                            "Reports",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "View Reports",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
+                  ),
 
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ProfilePage(),
-                          ),
-                        );
-                      },
-                      child: Card(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.person, size: 32, color: Colors.blue),
-                            SizedBox(height: 5),
-                            Text(
-                              "Profile",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
-
-                            SizedBox(height: 3),
-
-                            Text(
-                              "Employee Info",
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ProfilePage(),
                         ),
+                      );
+                    },
+                    child: Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.person, size: 30, color: Colors.blue),
+                          const SizedBox(height: 3),
+                          Text(
+                            "Profile",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+
+                          SizedBox(height: 3),
+
+                          Text(
+                            "Employee Info",
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ],
           ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
@@ -18,9 +19,22 @@ class _AttendancePageState extends State<AttendancePage> {
 
   List<Map<String, dynamic>> attendanceHistory = [];
 
+  String employeeId = "";
+  bool isLoading = true;
+
+  Future<void> loadEmployee() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    setState(() {
+      employeeId = prefs.getString("employeeID") ?? "";
+      isLoading = false;
+    });
+  }
+
   Future<void> loadAttendanceData() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
         .collection("attendance")
+        .where("employeeId", isEqualTo: employeeId)
         .get();
 
     Map<DateTime, String> tempMap = {};
@@ -46,168 +60,177 @@ class _AttendancePageState extends State<AttendancePage> {
   @override
   void initState() {
     super.initState();
-    loadAttendanceData();
+    initializePage();
+  }
+
+  Future<void> initializePage() async {
+    await loadEmployee();
+    await loadAttendanceData();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text("Attendance History")),
 
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.green.shade100,
-                      child: const Icon(
-                        Icons.calendar_month,
-                        color: Colors.green,
-                        size: 30,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Card(
+                elevation: 5,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        radius: 30,
+                        backgroundColor: Colors.green.shade100,
+                        child: const Icon(
+                          Icons.calendar_month,
+                          color: Colors.green,
+                          size: 30,
+                        ),
                       ),
-                    ),
 
-                    const SizedBox(width: 15),
+                      const SizedBox(width: 15),
 
-                    const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Attendance Record",
-                          style: TextStyle(
-                            fontSize: 22,
+                      const Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "Attendance Record",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+
+                          Text(
+                            "Daily attendance details",
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.calendar_today,
+                    color: Colors.deepPurple,
+                  ),
+                  title: const Text("Date"),
+                  subtitle: Text(
+                    DateFormat('dd MMM yyyy').format(DateTime.now()),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              TableCalendar(
+                firstDay: DateTime.utc(2020, 1, 1),
+                lastDay: DateTime.utc(2035, 12, 31),
+                focusedDay: _focusedDay,
+
+                selectedDayPredicate: (day) {
+                  return isSameDay(_selectedDay, day);
+                },
+
+                onDaySelected: (selectedDay, focusedDay) {
+                  setState(() {
+                    _selectedDay = selectedDay;
+                    _focusedDay = focusedDay;
+                  });
+                },
+
+                calendarStyle: CalendarStyle(
+                  todayDecoration: BoxDecoration(
+                    color: Colors.deepPurple,
+                    shape: BoxShape.circle,
+                  ),
+
+                  selectedDecoration: BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+
+                calendarBuilders: CalendarBuilders(
+                  defaultBuilder: (context, day, focusedDay) {
+                    DateTime normalizedDay = DateTime(
+                      day.year,
+                      day.month,
+                      day.day,
+                    );
+
+                    String? status = attendanceMap[normalizedDay];
+
+                    if (status == null) return null;
+
+                    Color color;
+
+                    if (status == "Present") {
+                      color = Colors.green;
+                    } else if (status == "Absent") {
+                      color = Colors.red;
+                    } else if (status == "Late") {
+                      color = Colors.orange;
+                    } else {
+                      color = Colors.yellow;
+                    }
+
+                    return Container(
+                      margin: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          '${day.day}',
+                          style: const TextStyle(
+                            color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-
-                        Text(
-                          "Daily attendance details",
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: ListTile(
-                leading: const Icon(
-                  Icons.calendar_today,
-                  color: Colors.deepPurple,
-                ),
-                title: const Text("Date"),
-                subtitle: Text(
-                  DateFormat('dd MMM yyyy').format(DateTime.now()),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 20),
-
-            TableCalendar(
-              firstDay: DateTime.utc(2020, 1, 1),
-              lastDay: DateTime.utc(2035, 12, 31),
-              focusedDay: _focusedDay,
-
-              selectedDayPredicate: (day) {
-                return isSameDay(_selectedDay, day);
-              },
-
-              onDaySelected: (selectedDay, focusedDay) {
-                setState(() {
-                  _selectedDay = selectedDay;
-                  _focusedDay = focusedDay;
-                });
-              },
-
-              calendarStyle: CalendarStyle(
-                todayDecoration: BoxDecoration(
-                  color: Colors.deepPurple,
-                  shape: BoxShape.circle,
-                ),
-
-                selectedDecoration: BoxDecoration(
-                  color: Colors.green,
-                  shape: BoxShape.circle,
-                ),
-              ),
-
-              calendarBuilders: CalendarBuilders(
-                defaultBuilder: (context, day, focusedDay) {
-                  DateTime normalizedDay = DateTime(
-                    day.year,
-                    day.month,
-                    day.day,
-                  );
-
-                  String? status = attendanceMap[normalizedDay];
-
-                  if (status == null) return null;
-
-                  Color color;
-
-                  if (status == "Present") {
-                    color = Colors.green;
-                  } else if (status == "Absent") {
-                    color = Colors.red;
-                  } else if (status == "Late") {
-                    color = Colors.orange;
-                  } else {
-                    color = Colors.yellow;
-                  }
-
-                  return Container(
-                    margin: const EdgeInsets.all(4),
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${day.day}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
 
-            const Text(
-              "Attendance History",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
+              const Text(
+                "Attendance History",
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
 
-            const SizedBox(height: 10),
-
-            Expanded(
-              child: StreamBuilder(
+              const SizedBox(height: 10),
+              StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection("attendance")
+                    .where("employeeId", isEqualTo: employeeId)
                     .orderBy("date", descending: true)
                     .snapshots(),
 
@@ -220,11 +243,23 @@ class _AttendancePageState extends State<AttendancePage> {
                     return const Center(child: Text("No Attendance Records"));
                   }
 
+                  print("Employee ID: $employeeId");
+                  print("Documents Found: ${snapshot.data!.docs.length}");
+
                   return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     itemCount: snapshot.data!.docs.length,
 
                     itemBuilder: (context, index) {
+                      print("Builder Called");
+                      print("Index: $index");
+
                       var data = snapshot.data!.docs[index];
+
+                      print(
+                        "Record $index : ${DateFormat('dd MMM yyyy').format((data["date"] as Timestamp).toDate())} - ${data["status"]}",
+                      );
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 10),
@@ -283,8 +318,8 @@ class _AttendancePageState extends State<AttendancePage> {
                   );
                 },
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
