@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_new_app/pages/dashboard_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:my_new_app/pages/admin_dashboard.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -39,16 +40,18 @@ class _LoginPageState extends State<LoginPage> {
       "email": "nayan@work.com",
       "contact": "9876543212",
     },
+    "999999": {
+      "name": "admin",
+      "department": "Administration",
+      "email": "admin@company.com",
+      "contact": "9999999999",
+    },
   };
 
   final _formKey = GlobalKey<FormState>();
 
   Future<void> moveToHome() async {
-    print("Login button clicked");
-    print("MOVE TO HOME CALLED");
     if (_formKey.currentState!.validate()) {
-      print("Entered Name: $name");
-      print("Entered Employee ID: $employeeId");
       if (!employees.containsKey(employeeId) ||
           employees[employeeId]!["name"]!.toLowerCase() != name.toLowerCase()) {
         showDialog(
@@ -85,22 +88,32 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString("email", email);
     await prefs.setString("contactNo", contactNo);
 
-await prefs.setBool("isLoggedIn", true);
-    await FirebaseFirestore.instance.collection("employees").add({
-      "name": name,
-      "department": department,
-      "employeeID": employeeId,
-      "email": email,
-      "contactNo": contactNo,
-      "createdAt": Timestamp.now(),
-    });
+    await prefs.setBool("isLoggedIn", true);
+    await FirebaseFirestore.instance
+        .collection("employees")
+        .doc(employeeId)
+        .set({
+          "name": name,
+          "department": department,
+          "employeeID": employeeId,
+          "email": email,
+          "contactNo": contactNo,
+          "createdAt": Timestamp.now(),
+        });
 
     if (!mounted) return;
 
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const DashboardPage()),
-    );
+    if (employeeId == "999999") {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const AdminDashboard()),
+      );
+    } else {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const DashboardPage()),
+      );
+    }
 
     setState(() {
       changeButton = false;
@@ -256,4 +269,3 @@ await prefs.setBool("isLoggedIn", true);
   }
 }
 
-// Day9 update

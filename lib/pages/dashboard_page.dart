@@ -60,8 +60,6 @@ class _DashboardPageState extends State<DashboardPage> {
       punchInDateTime = DateTime.parse(savedPunchInDateTime);
     }
 
-    print("Loaded punchInDateTime: $punchInDateTime");
-
     setState(() {
       isPunchedIn = prefs.getBool("isPunchedIn") ?? false;
       isPunchedOut = prefs.getBool("isPunchedOut") ?? false;
@@ -82,6 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
     QuerySnapshot snapshot = await firestore
         .collection("attendance")
         .where("employeeId", isEqualTo: employeeId)
+        .orderBy("date", descending: true)
         .get();
     int present = 0;
     int absent = 0;
@@ -90,7 +89,11 @@ class _DashboardPageState extends State<DashboardPage> {
     for (var doc in snapshot.docs) {
       String status = doc["status"];
 
-      if (status == "Present" || status == "Late") {
+      if (status == "Present") {
+        present++;
+      } else if (status == "Late") {
+        present++;
+      } else if (status == "Half Day") {
         present++;
       } else if (status == "Absent") {
         absent++;
@@ -110,10 +113,7 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  void punchOut() {
-    print("Punch Out Clicked");
-    print("punchInDateTime = $punchInDateTime");
-
+  Future<void> punchOut() async {
     DateTime now = DateTime.now();
 
     String hour = (now.hour % 12 == 0) ? "12" : (now.hour % 12).toString();
@@ -132,8 +132,21 @@ class _DashboardPageState extends State<DashboardPage> {
     }
     Duration difference = now.difference(punchInDateTime!);
 
-    String attendanceStatus = "Present";
+    String attendanceStatus;
 
+    // Half Day
+    if (difference.inHours < 4) {
+      attendanceStatus = "Half Day";
+    }
+    // Late
+    else if (punchInDateTime!.hour > 9 ||
+        (punchInDateTime!.hour == 9 && punchInDateTime!.minute > 0)) {
+      attendanceStatus = "Late";
+    }
+    // Present
+    else {
+      attendanceStatus = "Present";
+    }
     // bool isLate =
     //     punchInDateTime!.hour > 9 ||
     //     (punchInDateTime!.hour == 9 && punchInDateTime!.minute > 0);
@@ -156,16 +169,44 @@ class _DashboardPageState extends State<DashboardPage> {
 
     saveAttendanceState();
 
-    firestore.collection("attendance").add({
-      "employeeId": employeeId,
-      "employeeName": name,
-      "department": department,
-      "date": Timestamp.now(),
-      "punchIn": punchInTime,
-      "punchOut": punchOutTime,
-      "workingHours": workingHours,
-      "status": attendanceStatus,
-    });
+    DateTime today = DateTime(now.year, now.month, now.day);
+
+    QuerySnapshot snapshot = await firestore
+        .collection("attendance")
+        .where("employeeId", isEqualTo: employeeId)
+        .get();
+
+    DocumentSnapshot? existingDoc;
+
+    for (var doc in snapshot.docs) {
+      DateTime docDate = (doc["date"] as Timestamp).toDate();
+
+      if (docDate.year == today.year &&
+          docDate.month == today.month &&
+          docDate.day == today.day) {
+        existingDoc = doc;
+        break;
+      }
+    }
+
+    if (existingDoc != null) {
+      await firestore.collection("attendance").doc(existingDoc.id).update({
+        "punchOut": punchOutTime,
+        "workingHours": workingHours,
+        "status": attendanceStatus,
+      });
+    } else {
+      await firestore.collection("attendance").add({
+        "employeeId": employeeId,
+        "employeeName": name,
+        "department": department,
+        "date": Timestamp.fromDate(now),
+        "punchIn": punchInTime,
+        "punchOut": punchOutTime,
+        "workingHours": workingHours,
+        "status": attendanceStatus,
+      });
+    }
   }
 
   String getGreeting() {
@@ -210,15 +251,48 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    await prefs.clear();
+    await prefs.remove("name");
+    await prefs.remove("department");
+    await prefs.remove("employeeID");
+    await prefs.remove("email");
+    await prefs.remove("contactNo");
 
     if (!mounted) return;
 
     Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
   }
 
-  void punchIn() {
+  Future<void> punchIn() async {
     DateTime now = DateTime.now();
+
+    DateTime today = DateTime(now.year, now.month, now.day);
+
+    QuerySnapshot snapshot = await firestore
+        .collection("attendance")
+        .where("employeeId", isEqualTo: employeeId)
+        .get();
+
+    bool alreadyPunchedToday = false;
+
+    for (var doc in snapshot.docs) {
+      DateTime docDate = (doc["date"] as Timestamp).toDate();
+
+      if (docDate.year == today.year &&
+          docDate.month == today.month &&
+          docDate.day == today.day) {
+        alreadyPunchedToday = true;
+        break;
+      }
+    }
+
+    if (alreadyPunchedToday) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You have already punched in today.")),
+      );
+      return;
+    }
 
     String hour = (now.hour % 12 == 0) ? "12" : (now.hour % 12).toString();
 
@@ -231,7 +305,8 @@ class _DashboardPageState extends State<DashboardPage> {
       punchInDateTime = now;
       isPunchedIn = true;
     });
-    saveAttendanceState();
+
+    await saveAttendanceState();
   }
 
   @override

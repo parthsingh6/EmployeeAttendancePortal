@@ -6,6 +6,7 @@ import 'package:my_new_app/utils/routes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:my_new_app/pages/dashboard_page.dart';
+import 'package:my_new_app/pages/admin_dashboard.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +26,7 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   bool isLoggedIn = false;
   bool isLoading = true;
+  String employeeId = "";
 
   @override
   void initState() {
@@ -37,6 +39,7 @@ class _MyAppState extends State<MyApp> {
 
     setState(() {
       isLoggedIn = prefs.getBool("isLoggedIn") ?? false;
+      employeeId = prefs.getString("employeeID") ?? "";
       isLoading = false;
     });
   }
@@ -60,8 +63,11 @@ class _MyAppState extends State<MyApp> {
 
       darkTheme: ThemeData(brightness: Brightness.dark),
 
-      home: isLoggedIn ? const DashboardPage() : LoginPage(),
-
+      home: !isLoggedIn
+          ? const LoginPage()
+          : employeeId == "999999"
+          ? const AdminDashboard()
+          : const DashboardPage(),
       routes: {
         "/login": (context) => LoginPage(),
         MyRoutes.homeRoute: (context) => HomePage(),

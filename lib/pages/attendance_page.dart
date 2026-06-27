@@ -189,12 +189,12 @@ class _AttendancePageState extends State<AttendancePage> {
 
                     if (status == "Present") {
                       color = Colors.green;
-                    } else if (status == "Absent") {
-                      color = Colors.red;
                     } else if (status == "Late") {
                       color = Colors.orange;
+                    } else if (status == "Half Day") {
+                      color = Colors.amber;
                     } else {
-                      color = Colors.yellow;
+                      color = Colors.red;
                     }
 
                     return Container(
@@ -243,72 +243,161 @@ class _AttendancePageState extends State<AttendancePage> {
                     return const Center(child: Text("No Attendance Records"));
                   }
 
-                  print("Employee ID: $employeeId");
-                  print("Documents Found: ${snapshot.data!.docs.length}");
-
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     itemCount: snapshot.data!.docs.length,
 
                     itemBuilder: (context, index) {
-                      print("Builder Called");
-                      print("Index: $index");
-
                       var data = snapshot.data!.docs[index];
-
-                      print(
-                        "Record $index : ${DateFormat('dd MMM yyyy').format((data["date"] as Timestamp).toDate())} - ${data["status"]}",
-                      );
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 10),
 
-                        child: ListTile(
-                          leading: Icon(
-                            data["status"] == "Present"
-                                ? Icons.check_circle
-                                : data["status"] == "Late"
-                                ? Icons.access_time
-                                : Icons.cancel,
-                            color: data["status"] == "Present"
-                                ? Colors.green
-                                : data["status"] == "Late"
-                                ? Colors.orange
-                                : Colors.red,
-                          ),
-
-                          title: Text(
-                            DateFormat(
-                              'dd MMM yyyy',
-                            ).format((data["date"] as Timestamp).toDate()),
-                          ),
-
-                          subtitle: Column(
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-
                             children: [
-                              Text("Punch In: ${data["punchIn"]}"),
-
-                              Text("Punch Out: ${data["punchOut"]}"),
-
-                              Text("Working Hours: ${data["workingHours"]}"),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.green.shade100,
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  data["status"],
-                                  style: const TextStyle(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
+                              Row(
+                                children: [
+                                  Text(
+                                    DateFormat('dd MMM yyyy').format(
+                                      (data["date"] as Timestamp).toDate(),
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
+
+                                  const Spacer(),
+
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: data["status"] == "Present"
+                                          ? Colors.green.shade100
+                                          : data["status"] == "Late"
+                                          ? Colors.orange.shade100
+                                          : data["status"] == "Half Day"
+                                          ? Colors.amber.shade100
+                                          : Colors.red.shade100,
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    child: Text(
+                                      data["status"],
+                                      style: TextStyle(
+                                        color: data["status"] == "Present"
+                                            ? Colors.green
+                                            : data["status"] == "Late"
+                                            ? Colors.orange
+                                            : data["status"] == "Half Day"
+                                            ? Colors.amber.shade800
+                                            : Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 15),
+
+                              const Divider(),
+
+                              const SizedBox(height: 12),
+
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.login,
+                                    color: Colors.green,
+                                    size: 20,
+                                  ),
+
+                                  const SizedBox(width: 10),
+
+                                  const Text(
+                                    "Punch In",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+
+                                  const Spacer(),
+
+                                  Text(
+                                    data["punchIn"],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.logout,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+
+                                  const SizedBox(width: 10),
+
+                                  const Text(
+                                    "Punch Out",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+
+                                  const Spacer(),
+
+                                  Text(
+                                    data["punchOut"],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.schedule,
+                                    color: Colors.deepPurple,
+                                    size: 20,
+                                  ),
+
+                                  const SizedBox(width: 10),
+
+                                  const Text(
+                                    "Working Hours",
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+
+                                  const Spacer(),
+
+                                  Text(
+                                    data["workingHours"],
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.deepPurple,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
