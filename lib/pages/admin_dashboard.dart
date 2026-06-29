@@ -4,6 +4,8 @@ import 'admin_attendance_page.dart';
 import 'admin_leave_page.dart';
 import 'admin_reports_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'login_page.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -165,8 +167,20 @@ class _AdminDashboardState extends State<AdminDashboard> {
         title: const Text("Admin Dashboard"),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: loadDashboardData,
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+
+              await prefs.clear();
+
+              if (!mounted) return;
+
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (_) => const LoginPage()),
+                (route) => false,
+              );
+            },
           ),
         ],
       ),
