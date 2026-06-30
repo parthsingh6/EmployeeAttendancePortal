@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
 
+// Displays complete information of the selected employee
+
 class AdminEmployeeDetails extends StatelessWidget {
+  // Stores the selected employee's information
+
   final Map<String, dynamic> employee;
 
-  const AdminEmployeeDetails({
-    super.key,
-    required this.employee,
-  });
+  const AdminEmployeeDetails({super.key, required this.employee});
+
+  // Builds the Employee Details screen
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Employee Details"),
-      ),
+      appBar: AppBar(title: const Text("Employee Details")),
 
       body: Padding(
         padding: const EdgeInsets.all(20),
 
+        // Employee information card
         child: Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
+  elevation: 3,
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(24),
+  ),
 
           child: Padding(
             padding: const EdgeInsets.all(20),
@@ -31,47 +33,57 @@ class AdminEmployeeDetails extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
 
               children: [
-
-                const Center(
-                  child: CircleAvatar(
-                    radius: 40,
-                    child: Icon(Icons.person,size:40),
+                // Employee profile icon
+                
+                Center(
+  child:CircleAvatar(
+                  radius: 45,
+                  backgroundColor: Colors.deepPurple.shade100,
+                  child: const Icon(
+                    Icons.person,
+                    size: 45,
+                    color: Colors.deepPurple,
                   ),
                 ),
-
-                const SizedBox(height:25),
-
-                Text(
-                  "Name : ${employee["name"]}",
-                  style: const TextStyle(fontSize:18),
                 ),
 
-                const SizedBox(height:15),
-
-                Text(
-                  "Employee ID : ${employee["employeeID"]}",
-                  style: const TextStyle(fontSize:18),
+                const SizedBox(height: 25),
+                ListTile(
+                  leading: const Icon(Icons.person),
+                  title: const Text("Name"),
+                  subtitle: Text(employee["name"]),
                 ),
 
-                const SizedBox(height:15),
+                const Divider(),
 
-                Text(
-                  "Department : ${employee["department"]}",
-                  style: const TextStyle(fontSize:18),
+                ListTile(
+                  leading: const Icon(Icons.badge),
+                  title: const Text("Employee ID"),
+                  subtitle: Text(employee["employeeID"]),
                 ),
 
-                const SizedBox(height:15),
+                const Divider(),
 
-                Text(
-                  "Email : ${employee["email"]}",
-                  style: const TextStyle(fontSize:18),
+                ListTile(
+                  leading: const Icon(Icons.business),
+                  title: const Text("Department"),
+                  subtitle: Text(employee["department"]),
                 ),
 
-                const SizedBox(height:15),
+                const Divider(),
 
-                Text(
-                  "Contact : ${employee["contactNo"]}",
-                  style: const TextStyle(fontSize:18),
+                ListTile(
+                  leading: const Icon(Icons.email),
+                  title: const Text("Email"),
+                  subtitle: Text(employee["email"]),
+                ),
+
+                const Divider(),
+
+                ListTile(
+                  leading: const Icon(Icons.phone),
+                  title: const Text("Contact"),
+                  subtitle: Text(employee["contactNo"]),
                 ),
               ],
             ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Displays employee details after successful login
+
 class StudentDetails extends StatefulWidget {
   const StudentDetails({super.key});
 
@@ -9,17 +11,23 @@ class StudentDetails extends StatefulWidget {
 }
 
 class _StudentDetailsState extends State<StudentDetails> {
+  // Stores employee information retrieved from SharedPreferences
+
   String name = "";
   String department = "";
   String employeeID = "";
   String email = "";
   String contactNo = "";
 
+  // Initializes the employee details page
+
   @override
   void initState() {
     super.initState();
     loadData();
   }
+
+  // Loads employee details from SharedPreferences
 
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -32,6 +40,8 @@ class _StudentDetailsState extends State<StudentDetails> {
       contactNo = prefs.getString("contactNo") ?? "";
     });
   }
+
+  // Builds the Employee Details screen
 
   @override
   Widget build(BuildContext context) {

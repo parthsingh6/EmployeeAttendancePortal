@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'admin_employee_details.dart';
 
+// Displays all registered employees for the administrator
+
 class AdminEmployeesPage extends StatefulWidget {
   const AdminEmployeesPage({super.key});
 
@@ -10,9 +12,15 @@ class AdminEmployeesPage extends StatefulWidget {
 }
 
 class _AdminEmployeesPageState extends State<AdminEmployeesPage> {
+  // Controller used for employee search
+
   final TextEditingController searchController = TextEditingController();
 
+  // Stores the search query entered by the administrator
+
   String searchText = "";
+
+  // Builds the Employee Management screen
 
   @override
   Widget build(BuildContext context) {
@@ -23,32 +31,34 @@ class _AdminEmployeesPageState extends State<AdminEmployeesPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(15),
+
+            // Search employees by name or employee ID
             child: TextField(
               controller: searchController,
               decoration: InputDecoration(
-  hintText: "Search by Name or Employee ID",
-  prefixIcon: const Icon(Icons.search),
-  filled: true,
-  fillColor: Colors.grey.shade100,
+                hintText: "Search by Name or Employee ID",
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: Colors.grey.shade100,
 
-  border: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-    borderSide: BorderSide.none,
-  ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
 
-  enabledBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-    borderSide: BorderSide.none,
-  ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: BorderSide.none,
+                ),
 
-  focusedBorder: OutlineInputBorder(
-    borderRadius: BorderRadius.circular(15),
-    borderSide: const BorderSide(
-      color: Colors.deepPurple,
-      width: 2,
-    ),
-  ),
-),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(15),
+                  borderSide: const BorderSide(
+                    color: Colors.deepPurple,
+                    width: 2,
+                  ),
+                ),
+              ),
               onChanged: (value) {
                 setState(() {
                   searchText = value.toLowerCase();
@@ -58,6 +68,7 @@ class _AdminEmployeesPageState extends State<AdminEmployeesPage> {
           ),
 
           Expanded(
+            // Retrieves employee records from Firestore in real time
             child: StreamBuilder<QuerySnapshot>(
               stream: FirebaseFirestore.instance
                   .collection("employees")
@@ -72,6 +83,8 @@ class _AdminEmployeesPageState extends State<AdminEmployeesPage> {
                   return const Center(child: Text("No Employees Found"));
                 }
 
+                // Builds the employee list
+
                 return ListView.builder(
                   padding: const EdgeInsets.all(15),
                   itemCount: snapshot.data!.docs.length,
@@ -85,18 +98,25 @@ class _AdminEmployeesPageState extends State<AdminEmployeesPage> {
 
                     String employeeId = employee["employeeID"].toString();
 
+                    // Filters employees based on the search query
                     if (searchText.isNotEmpty &&
                         !employeeName.contains(searchText) &&
                         !employeeId.contains(searchText)) {
                       return const SizedBox.shrink();
                     }
 
+                    // Employee information card
+
                     return Card(
-                      elevation: 3,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
                       margin: const EdgeInsets.only(bottom: 15),
 
                       child: ListTile(
                         leading: CircleAvatar(
+                          radius: 24,
                           backgroundColor: Colors.deepPurple.shade100,
                           child: const Icon(
                             Icons.person,
@@ -108,17 +128,25 @@ class _AdminEmployeesPageState extends State<AdminEmployeesPage> {
                           employee["name"],
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
-
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Employee ID : ${employee["employeeID"]}"),
-                            Text("Department : ${employee["department"]}"),
-                          ],
+                        subtitle: Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text("Employee ID : ${employee["employeeID"]}"),
+                              Text("Department : ${employee["department"]}"),
+                            ],
+                          ),
                         ),
 
-                        trailing: const Icon(Icons.arrow_forward_ios),
+                        trailing: const Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
 
+                        // Opens the selected employee's detailed profile
                         onTap: () {
                           Navigator.push(
                             context,

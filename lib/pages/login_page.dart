@@ -5,6 +5,8 @@ import 'package:my_new_app/pages/dashboard_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:my_new_app/pages/admin_dashboard.dart';
 
+// Employee login screen
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -13,13 +15,19 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  // Stores employee login details
+
   String name = "";
   String department = "";
   String employeeId = "";
   String email = "";
   String contactNo = "";
 
+  // Controls the login button animation
+
   bool changeButton = false;
+
+  // Predefined employee records for authentication
 
   final Map<String, Map<String, String>> employees = {
     "111111": {
@@ -48,7 +56,11 @@ class _LoginPageState extends State<LoginPage> {
     },
   };
 
+  // Form key used for input validation
+
   final _formKey = GlobalKey<FormState>();
+
+  // Validates employee credentials and performs login
 
   Future<void> moveToHome() async {
     if (_formKey.currentState!.validate()) {
@@ -89,6 +101,8 @@ class _LoginPageState extends State<LoginPage> {
     await prefs.setString("contactNo", contactNo);
 
     await prefs.setBool("isLoggedIn", true);
+
+    // Saves employee details to Firestore
     await FirebaseFirestore.instance
         .collection("employees")
         .doc(employeeId)
@@ -103,6 +117,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (!mounted) return;
 
+    // Redirects user based on their role
     if (employeeId == "999999") {
       Navigator.push(
         context,
@@ -119,6 +134,8 @@ class _LoginPageState extends State<LoginPage> {
       changeButton = false;
     });
   }
+
+  // Builds the Login screen
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
 
-              SizedBox(height: 15),
+              const SizedBox(height: 15),
 
               Text(
                 "Employee Attendance Management System",
@@ -157,6 +174,8 @@ class _LoginPageState extends State<LoginPage> {
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
+
+                // Employee login form
                 child: Card(
                   elevation: 10,
                   shape: RoundedRectangleBorder(
@@ -169,6 +188,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     child: Column(
                       children: [
+                        // Employee name input
                         TextFormField(
                           textCapitalization: TextCapitalization.words,
                           decoration: InputDecoration(
@@ -193,6 +213,7 @@ class _LoginPageState extends State<LoginPage> {
 
                         SizedBox(height: 15),
 
+                        // Employee ID input
                         TextFormField(
                           keyboardType: TextInputType.number,
                           inputFormatters: [
@@ -217,16 +238,22 @@ class _LoginPageState extends State<LoginPage> {
                           },
                         ),
 
-                        SizedBox(height: 15),
+                        const SizedBox(height: 15),
 
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
+
+                        // Login button with animation
                         Material(
                           color: Colors.deepPurple,
+                          borderRadius: BorderRadius.circular(12),
                           child: InkWell(
                             onTap: () {
                               moveToHome();
                             },
                             child: AnimatedContainer(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                               duration: Duration(seconds: 1),
                               width: changeButton ? 50 : 180,
                               height: 50,
@@ -268,4 +295,3 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 }
-

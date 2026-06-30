@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
+// Sample home page created during Flutter practice
+
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+
+  // Sample data used for Flutter learning
+
   final int days = 30;
   final String name = "Parth";
 
@@ -14,3 +19,6 @@ class HomePage extends StatelessWidget {
     );
   }
 }
+
+
+  // Builds the sample Home page

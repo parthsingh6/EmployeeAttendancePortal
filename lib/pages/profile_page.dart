@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Displays the logged-in employee's profile information
+
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
 
@@ -9,17 +11,22 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  // Stores employee profile details
   String name = "";
   String department = "";
   String employeeId = "";
   String email = "";
   String contactNo = "";
 
+  // Initializes the profile page
+
   @override
   void initState() {
     super.initState();
     loadData();
   }
+
+  // Loads employee profile information from SharedPreferences
 
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -33,6 +40,8 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  // Builds the Profile page user interface
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,10 +49,13 @@ class _ProfilePageState extends State<ProfilePage> {
 
       body: Padding(
         padding: const EdgeInsets.all(20),
+
+        // Employee profile card
         child: Card(
           elevation: 5,
           child: Padding(
             padding: const EdgeInsets.all(20),
+
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Employee Leave Request screen
+
 class LeavePage extends StatefulWidget {
   const LeavePage({super.key});
 
@@ -10,15 +12,19 @@ class LeavePage extends StatefulWidget {
 }
 
 class _LeavePageState extends State<LeavePage> {
+  // Stores employee information and leave request details
   DateTime? selectedDate;
 
   TextEditingController reasonController = TextEditingController();
 
+  // Firestore instance for storing and retrieving leave requests
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   String employeeId = "";
   String name = "";
   String department = "";
+
+  // Loads employee details from SharedPreferences
 
   Future<void> loadEmployeeData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -28,13 +34,19 @@ class _LeavePageState extends State<LeavePage> {
       name = prefs.getString("name") ?? "";
       department = prefs.getString("department") ?? "";
     });
+
+    print("Employee ID: $employeeId");
   }
+
+  // Initializes the leave request page
 
   @override
   void initState() {
     super.initState();
     loadEmployeeData();
   }
+
+  // Opens the calendar to select a leave date
 
   Future<void> pickDate() async {
     DateTime? pickedDate = await showDatePicker(
@@ -50,6 +62,8 @@ class _LeavePageState extends State<LeavePage> {
       });
     }
   }
+
+  // Saves the leave request to Firestore after validation
 
   Future<void> applyLeave() async {
     if (selectedDate == null || reasonController.text.isEmpty) {
@@ -82,6 +96,8 @@ class _LeavePageState extends State<LeavePage> {
     reasonController.clear();
   }
 
+  // Builds the Leave Request user interface
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,6 +106,7 @@ class _LeavePageState extends State<LeavePage> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            // Leave request page header
             Card(
               elevation: 5,
               shape: RoundedRectangleBorder(
@@ -135,6 +152,8 @@ class _LeavePageState extends State<LeavePage> {
             ),
 
             const SizedBox(height: 20),
+
+            // Leave date selection card
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
@@ -162,6 +181,7 @@ class _LeavePageState extends State<LeavePage> {
 
             const SizedBox(height: 20),
 
+            // Leave reason input field
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
@@ -183,12 +203,14 @@ class _LeavePageState extends State<LeavePage> {
 
             const SizedBox(height: 20),
 
+            // Button to submit the leave request
             ElevatedButton(
               onPressed: applyLeave,
               child: const Text("Apply Leave"),
             ),
             const SizedBox(height: 30),
 
+            // Employee leave request history
             const Text(
               "Leave History",
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -197,14 +219,20 @@ class _LeavePageState extends State<LeavePage> {
             const SizedBox(height: 10),
 
             Expanded(
+              // Displays leave requests in real time from Firestore
               child: StreamBuilder<QuerySnapshot>(
                 stream: firestore
                     .collection("leave_requests")
                     .where("employeeId", isEqualTo: employeeId)
+                    .orderBy("appliedOn", descending: true)
                     .snapshots(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (snapshot.hasError) {
+                    return Center(child: Text(snapshot.error.toString()));
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {

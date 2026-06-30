@@ -7,6 +7,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
 
+// Admin dashboard for monitoring employee attendance and leave records
+
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
 
@@ -15,10 +17,13 @@ class AdminDashboard extends StatefulWidget {
 }
 
 class _AdminDashboardState extends State<AdminDashboard> {
+  // Stores dashboard statistics
   int totalEmployees = 0;
   int totalPresent = 0;
   int totalAbsent = 0;
   int totalLeaves = 0;
+
+  // Initializes the admin dashboard
 
   @override
   void initState() {
@@ -26,20 +31,21 @@ class _AdminDashboardState extends State<AdminDashboard> {
     loadDashboardData();
   }
 
+  // Loads employee, attendance and leave summary from Firestore
+
   Future<void> loadDashboardData() async {
-    // Employees
+    // Fetches employee, attendance and leave data from Firestore
+
     var employeeSnapshot = await FirebaseFirestore.instance
         .collection("employees")
         .get();
 
     DateTime today = DateTime.now();
 
-    // Attendance
     var attendanceSnapshot = await FirebaseFirestore.instance
         .collection("attendance")
         .get();
 
-    // Leave Requests
     var leaveSnapshot = await FirebaseFirestore.instance
         .collection("leave_requests")
         .get();
@@ -77,6 +83,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
       totalLeaves = pendingLeaves;
     });
   }
+
+  // Builds overview statistic cards
 
   Widget buildCard({
     required IconData icon,
@@ -122,6 +130,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  // Creates dashboard navigation cards
+
   Widget quickAction(
     BuildContext context,
     IconData icon,
@@ -160,6 +170,8 @@ class _AdminDashboardState extends State<AdminDashboard> {
     );
   }
 
+  // Builds the Admin Dashboard user interface
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -169,21 +181,48 @@ class _AdminDashboardState extends State<AdminDashboard> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-
-              await prefs.clear();
-
-              if (!mounted) return;
-
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (_) => const LoginPage()),
-                (route) => false,
+              bool? logout = await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("Logout"),
+                    content: const Text("Are you sure you want to logout?"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.pop(context, false);
+                        },
+                        child: const Text("Cancel"),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pop(context, true);
+                        },
+                        child: const Text("Logout"),
+                      ),
+                    ],
+                  );
+                },
               );
+
+              if (logout == true) {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+
+                await prefs.clear();
+
+                if (!context.mounted) return;
+
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  (route) => false,
+                );
+              }
             },
           ),
         ],
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
 
@@ -191,6 +230,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
           crossAxisAlignment: CrossAxisAlignment.start,
 
           children: [
+            // Admin profile header
             Card(
               elevation: 3,
               shape: RoundedRectangleBorder(
@@ -241,6 +281,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
             const SizedBox(height: 25),
 
+            // Dashboard overview section
             const Text(
               "Overview",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -292,6 +333,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
             const SizedBox(height: 30),
 
+            // Quick navigation shortcuts
             const Text(
               "Quick Actions",
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

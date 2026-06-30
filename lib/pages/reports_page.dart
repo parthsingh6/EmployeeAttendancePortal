@@ -3,6 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Displays attendance analytics and performance reports for the employee
+
 class ReportsPage extends StatefulWidget {
   const ReportsPage({super.key});
 
@@ -11,6 +13,7 @@ class ReportsPage extends StatefulWidget {
 }
 
 class _ReportsPageState extends State<ReportsPage> {
+  // Stores attendance statistics for the logged-in employee
   int presentCount = 0;
   int absentCount = 0;
   int lateCount = 0;
@@ -22,6 +25,8 @@ class _ReportsPageState extends State<ReportsPage> {
   String employeeId = "";
   bool isLoading = true;
 
+  // Loads the employee ID from SharedPreferences
+
   Future<void> loadEmployee() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -30,6 +35,8 @@ class _ReportsPageState extends State<ReportsPage> {
       isLoading = false;
     });
   }
+
+  // Retrieves attendance records from Firestore and calculates report statistics
 
   Future<void> loadReportData() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -49,7 +56,7 @@ class _ReportsPageState extends State<ReportsPage> {
         present++;
       } else if (status == "Late") {
         late++;
-        present++; // Count Late as Present too
+        present++; // Late attendance contributes towards overall attendance percentage
       } else if (status == "Absent") {
         absent++;
       } else if (status == "Half Day") {
@@ -71,6 +78,8 @@ class _ReportsPageState extends State<ReportsPage> {
           : ((present + late + (halfDay * 0.5)) / total) * 100;
     });
   }
+
+  // Builds a pie chart to visualize attendance distribution
 
   Widget buildPieChart() {
     return SizedBox(
@@ -137,16 +146,22 @@ class _ReportsPageState extends State<ReportsPage> {
     );
   }
 
+  // Initializes the reports page
+
   @override
   void initState() {
     super.initState();
     initializePage();
   }
 
+  // Loads employee information and attendance report data
+
   Future<void> initializePage() async {
     await loadEmployee();
     await loadReportData();
   }
+
+  // Builds the Reports page user interface
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +177,7 @@ class _ReportsPageState extends State<ReportsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Reports page header
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -204,8 +220,9 @@ class _ReportsPageState extends State<ReportsPage> {
 
               const SizedBox(height: 25),
 
-              // buildPieChart(),
               const SizedBox(height: 20),
+
+              // Displays overall attendance percentage and performance rating
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -288,6 +305,8 @@ class _ReportsPageState extends State<ReportsPage> {
                 ),
               ),
               const SizedBox(height: 20),
+
+              // Displays detailed attendance statistics
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(

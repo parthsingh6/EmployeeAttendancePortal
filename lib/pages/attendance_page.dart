@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+// Displays employee attendance history and monthly attendance calendar
+
 class AttendancePage extends StatefulWidget {
   const AttendancePage({super.key});
 
@@ -12,6 +14,7 @@ class AttendancePage extends StatefulWidget {
 }
 
 class _AttendancePageState extends State<AttendancePage> {
+  // Variables used for attendance calendar and attendance history
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
@@ -22,6 +25,8 @@ class _AttendancePageState extends State<AttendancePage> {
   String employeeId = "";
   bool isLoading = true;
 
+  // Loads the logged-in employee ID from SharedPreferences
+
   Future<void> loadEmployee() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -30,6 +35,8 @@ class _AttendancePageState extends State<AttendancePage> {
       isLoading = false;
     });
   }
+
+  // Fetches employee attendance records from Firestore
 
   Future<void> loadAttendanceData() async {
     QuerySnapshot snapshot = await FirebaseFirestore.instance
@@ -57,16 +64,22 @@ class _AttendancePageState extends State<AttendancePage> {
     });
   }
 
+  // Initializes the attendance page
+
   @override
   void initState() {
     super.initState();
     initializePage();
   }
 
+  // Loads employee details and attendance data
+
   Future<void> initializePage() async {
     await loadEmployee();
     await loadAttendanceData();
   }
+
+  // Builds the Attendance History screen
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +96,7 @@ class _AttendancePageState extends State<AttendancePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Attendance page header
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -126,6 +140,7 @@ class _AttendancePageState extends State<AttendancePage> {
                 ),
               ),
 
+              // Displays today's date
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
@@ -145,6 +160,7 @@ class _AttendancePageState extends State<AttendancePage> {
 
               const SizedBox(height: 20),
 
+              // Monthly attendance calendar
               TableCalendar(
                 firstDay: DateTime.utc(2020, 1, 1),
                 lastDay: DateTime.utc(2035, 12, 31),
@@ -173,6 +189,7 @@ class _AttendancePageState extends State<AttendancePage> {
                   ),
                 ),
 
+                // Highlights attendance status using different colors
                 calendarBuilders: CalendarBuilders(
                   defaultBuilder: (context, day, focusedDay) {
                     DateTime normalizedDay = DateTime(
@@ -219,14 +236,15 @@ class _AttendancePageState extends State<AttendancePage> {
 
               const SizedBox(height: 20),
 
-              const SizedBox(height: 20),
-
+              // Attendance history section
               const Text(
                 "Attendance History",
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 10),
+
+              // Displays attendance records in real time from Firestore
               StreamBuilder(
                 stream: FirebaseFirestore.instance
                     .collection("attendance")
@@ -242,6 +260,8 @@ class _AttendancePageState extends State<AttendancePage> {
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return const Center(child: Text("No Attendance Records"));
                   }
+
+                  // Builds attendance history cards
 
                   return ListView.builder(
                     shrinkWrap: true,

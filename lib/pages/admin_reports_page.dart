@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Displays overall attendance and leave statistics for administrators
+
 class AdminReportsPage extends StatefulWidget {
   const AdminReportsPage({super.key});
 
@@ -9,6 +11,7 @@ class AdminReportsPage extends StatefulWidget {
 }
 
 class _AdminReportsPageState extends State<AdminReportsPage> {
+  // Stores attendance and leave report statistics
   int totalEmployees = 0;
   int totalPresent = 0;
   int totalAbsent = 0;
@@ -16,11 +19,15 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
   int approvedLeaves = 0;
   int rejectedLeaves = 0;
 
+  // Initializes the reports page
+
   @override
   void initState() {
     super.initState();
     loadReportData();
   }
+
+  // Retrieves report data from Firestore
 
   Future<void> loadReportData() async {
     final firestore = FirebaseFirestore.instance;
@@ -54,23 +61,40 @@ class _AdminReportsPageState extends State<AdminReportsPage> {
     });
   }
 
+  // Builds a reusable report summary card
+
   Widget reportTile(IconData icon, Color color, String title, int value) {
     return Card(
-      elevation: 3,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       margin: const EdgeInsets.only(bottom: 15),
       child: ListTile(
         leading: CircleAvatar(
+          radius: 24,
           backgroundColor: color.withValues(alpha: 0.15),
           child: Icon(icon, color: color),
         ),
         title: Text(title),
-        trailing: Text(
-          value.toString(),
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        trailing: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: color.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            value.toString(),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.bold,
+              fontSize: 18,
+            ),
+          ),
         ),
       ),
     );
   }
+
+  // Builds the Admin Reports screen
 
   @override
   Widget build(BuildContext context) {

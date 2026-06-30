@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Displays attendance records of all employees for the administrator
+
 class AdminAttendancePage extends StatelessWidget {
   const AdminAttendancePage({super.key});
+
+  // Builds the Admin Attendance screen
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Attendance")),
 
+      // Retrieves attendance records from Firestore in real time
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection("attendance")
@@ -24,6 +29,8 @@ class AdminAttendancePage extends StatelessWidget {
             return const Center(child: Text("No Attendance Records"));
           }
 
+          // Builds the attendance record list
+
           return ListView.builder(
             padding: const EdgeInsets.all(15),
             itemCount: snapshot.data!.docs.length,
@@ -33,9 +40,14 @@ class AdminAttendancePage extends StatelessWidget {
 
               DateTime date = (attendance["date"] as Timestamp).toDate();
 
+              // Attendance record card
+
               return Card(
-                elevation: 3,
+                elevation: 2,
                 margin: const EdgeInsets.only(bottom: 15),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
+                ),
 
                 child: Padding(
                   padding: const EdgeInsets.all(15),
@@ -47,6 +59,7 @@ class AdminAttendancePage extends StatelessWidget {
                       Row(
                         children: [
                           CircleAvatar(
+                            radius: 24,
                             backgroundColor: Colors.green.shade100,
                             child: const Icon(
                               Icons.person,
@@ -74,6 +87,7 @@ class AdminAttendancePage extends StatelessWidget {
                             ),
                           ),
 
+                          // Displays the employee's attendance status
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 12,
@@ -101,21 +115,52 @@ class AdminAttendancePage extends StatelessWidget {
                         ],
                       ),
 
-                      const Divider(height: 25),
+                      const Divider(height: 30),
 
-                      Text("Date : ${date.day}/${date.month}/${date.year}"),
-
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.calendar_today,
+                            size: 18,
+                            color: Colors.deepPurple,
+                          ),
+                          const SizedBox(width: 8),
+                          Text("${date.day}/${date.month}/${date.year}"),
+                        ],
+                      ),
                       const SizedBox(height: 8),
 
-                      Text("Punch In : ${attendance["punchIn"]}"),
-
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.login,
+                            size: 18,
+                            color: Colors.green,
+                          ),
+                          const SizedBox(width: 8),
+                          Text("Punch In : ${attendance["punchIn"]}"),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          const Icon(Icons.logout, size: 18, color: Colors.red),
+                          const SizedBox(width: 8),
+                          Text("Punch Out : ${attendance["punchOut"]}"),
+                        ],
+                      ),
                       const SizedBox(height: 8),
 
-                      Text("Punch Out : ${attendance["punchOut"]}"),
-
-                      const SizedBox(height: 8),
-
-                      Text("Working Hours : ${attendance["workingHours"]}"),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.schedule,
+                            size: 18,
+                            color: Colors.orange,
+                          ),
+                          const SizedBox(width: 8),
+                          Text("Working Hours : ${attendance["workingHours"]}"),
+                        ],
+                      ),
                     ],
                   ),
                 ),

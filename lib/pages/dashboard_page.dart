@@ -7,6 +7,7 @@ import 'package:my_new_app/pages/reports_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
+// Employee Dashboard displayed after successful login
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -15,6 +16,7 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  // Employee information and attendance data
   String name = "";
   String department = "";
   String employeeId = "";
@@ -33,7 +35,10 @@ class _DashboardPageState extends State<DashboardPage> {
   DateTime? punchInDateTime;
   DateTime? punchOutDateTime;
 
+  // Firestore instance used to read and update attendance records
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  // Saves punch-in, punch-out and working hours locally
   Future<void> saveAttendanceState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -51,6 +56,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  // Restores the saved attendance state after reopening the application
   Future<void> loadAttendanceState() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -76,6 +82,7 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  // Fetches employee attendance summary from Firestore
   Future<void> loadAttendanceSummary() async {
     QuerySnapshot snapshot = await firestore
         .collection("attendance")
@@ -113,6 +120,7 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  // Records punch-out time and updates attendance status in Firestore
   Future<void> punchOut() async {
     DateTime now = DateTime.now();
 
@@ -132,19 +140,15 @@ class _DashboardPageState extends State<DashboardPage> {
     }
     Duration difference = now.difference(punchInDateTime!);
 
+    // Determines the attendance status based on punch-in and working hours
     String attendanceStatus;
 
-    // Half Day
     if (difference.inHours < 4) {
       attendanceStatus = "Half Day";
-    }
-    // Late
-    else if (punchInDateTime!.hour > 9 ||
+    } else if (punchInDateTime!.hour > 9 ||
         (punchInDateTime!.hour == 9 && punchInDateTime!.minute > 0)) {
       attendanceStatus = "Late";
-    }
-    // Present
-    else {
+    } else {
       attendanceStatus = "Present";
     }
     // bool isLate =
@@ -209,6 +213,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  // Returns a greeting message based on the current time
   String getGreeting() {
     int hour = DateTime.now().hour;
 
@@ -223,6 +228,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  // Initializes the dashboard when the page is loaded
   @override
   void initState() {
     super.initState();
@@ -230,6 +236,7 @@ class _DashboardPageState extends State<DashboardPage> {
     initializeDashboard();
   }
 
+  // Loads employee information and attendance details
   Future<void> initializeDashboard() async {
     await loadData();
 
@@ -238,6 +245,7 @@ class _DashboardPageState extends State<DashboardPage> {
     await loadAttendanceState();
   }
 
+  // Loads employee details from SharedPreferences
   Future<void> loadData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -248,6 +256,7 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  // Logs out the current employee and returns to the login screen
   Future<void> logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -262,6 +271,7 @@ class _DashboardPageState extends State<DashboardPage> {
     Navigator.pushNamedAndRemoveUntil(context, "/login", (route) => false);
   }
 
+  // Records employee punch-in time for the current day
   Future<void> punchIn() async {
     DateTime now = DateTime.now();
 
@@ -309,6 +319,8 @@ class _DashboardPageState extends State<DashboardPage> {
     await saveAttendanceState();
   }
 
+  // Builds the Employee Dashboard user interface
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -326,6 +338,7 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Employee profile information card
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -408,6 +421,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
               const SizedBox(height: 25),
 
+              // Attendance summary section
               const Text(
                 "Attendance Overview",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -515,6 +529,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
               const SizedBox(height: 12),
 
+              // Displays today's attendance status
               Card(
                 elevation: 2,
                 shape: RoundedRectangleBorder(
@@ -650,6 +665,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
               const SizedBox(height: 15),
 
+              // Quick navigation shortcuts
               Text(
                 "Quick Actions",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -793,6 +809,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       );
                     },
+
                     child: Card(
                       elevation: 2,
                       shape: RoundedRectangleBorder(
